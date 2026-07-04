@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8fafc;
+            color: #1a1a1a;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #fff;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .logo {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .nav {
+            padding: 16px 0;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.15s;
+            border-left: 2px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: #1a1a1a;
+        }
+
+        .nav-item.active {
+            color: #1a1a1a;
+            font-weight: 500;
+            border-left-color: #1a1a1a;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .content-header {
+            background: #fff;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 20px 32px;
+        }
+
+        .content-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .content-body {
+            padding: 40px 32px;
+        }
+
+        .view {
+            display: none;
+            animation: fadeIn 0.15s ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .metrics {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .metric {
+            flex: 1;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .table-section {
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 2px;
+        }
+
+        .filter-tab {
+            padding: 4px 10px;
+            font-size: 12px;
+            color: #666;
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .filter-tab:hover {
+            color: #1a1a1a;
+        }
+
+        .filter-tab.active {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 24px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #999;
+            background: #fafafa;
+            border-bottom: 1px solid #e5e5e5;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        th.align-right {
+            text-align: right;
+        }
+
+        td {
+            padding: 14px 24px;
+            font-size: 13px;
+            color: #1a1a1a;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        td.align-right {
+            text-align: right;
+        }
+
+        tbody tr {
+            transition: background 0.1s;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-text {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .status-text.settled {
+            color: #10b981;
+        }
+
+        .status-text.returned {
+            color: #ef4444;
+        }
+
+        .lifecycle-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #e5e5e5;
+        }
+
+        .dot.active {
+            background: #1a1a1a;
+        }
+
+        .right-panel {
+            width: 320px;
+            background: #fff;
+            border-left: 1px solid #e5e5e5;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .panel-section {
+            padding: 24px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .panel-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 13px;
+            color: #1a1a1a;
+            font-family: 'SF Mono', monospace;
+        }
+
+        .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #1a1a1a;
+            background: #fff;
+            cursor: pointer;
+            transition: border-color 0.15s;
+            text-align: left;
+        }
+
+        .action-btn:hover {
+            border-color: #1a1a1a;
+        }
+
+        .action-btn.primary {
+            background: #1a1a1a;
+            color: #fff;
+            border-color: #1a1a1a;
+        }
+
+        .action-btn.primary:hover {
+            background: #333;
+        }
+
+        .quick-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .field-input {
+            flex: 1;
+            padding: 8px 0;
+            border: none;
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 13px;
+            color: #1a1a1a;
+            background: transparent;
+            transition: border-color 0.15s;
+        }
+
+        .field-input:focus {
+            outline: none;
+            border-bottom-color: #1a1a1a;
+        }
+
+        .field-input::placeholder {
+            color: #999;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .reason-selector {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .reason-option {
+            padding: 4px 10px;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #666;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .reason-option:hover {
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+
+        .reason-option.selected {
+            background: #1a1a1a;
+            color: #fff;
+            border-color: #1a1a1a;
+        }
+
+        .submit-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #fff;
+            background: #1a1a1a;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .submit-btn:hover {
+            background: #333;
+        }
+
+        .submit-btn:disabled {
+            background: #e5e5e5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        /* Toast Notification System - Fixed Stacking */
+        #alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            animation: slideIn 0.2s ease, fadeOut 0.2s ease 2.8s;
+            pointer-events: auto;
+            min-width: 200px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        .alert.loading {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .alert.success {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .alert.error {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .batch-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .batch-item {
+            padding: 10px;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: border-color 0.15s;
+        }
+
+        .batch-item:hover {
+            border-color: #1a1a1a;
+        }
+
+        .batch-id {
+            font-family: 'SF Mono', monospace;
+            color: #666;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+
+        .batch-stats {
+            display: flex;
+            justify-content: space-between;
+            color: #999;
+            font-size: 11px;
+        }
+
+        .nacha-viewer {
+            background: #1a1a1a;
+            border-radius: 4px;
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .nacha-content {
+            font-family: 'SF Mono', monospace;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #10b981;
+            white-space: pre;
+        }
+
+        .empty-state {
+            padding: 40px;
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+        }
+
+        code {
+            font-family: 'SF Mono', monospace;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-item {
+            padding: 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.15s;
+        }
+
+        .file-item:hover {
+            border-color: #1a1a1a;
+        }
+
+        .file-name {
+            font-family: 'SF Mono', monospace;
+            color: #1a1a1a;
+        }
+
+        .file-size {
+            color: #999;
+            font-size: 11px;
+        }
+
+        @media (max-width: 1024px) {
+            .right-panel {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">Payment Hub</div>
+            </div>
+            <nav class="nav">
+                <div class="nav-item active" onclick="switchView('dashboard', this)">Dashboard</div>
+                <div class="nav-item" onclick="switchView('payments', this)">Payments</div>
+                <div class="nav-item" onclick="switchView('batches', this)">Batches</div>
+                <div class="nav-item" onclick="switchView('files', this)">Files</div>
+                <a href="/api-docs" class="nav-item" style="text-decoration: none;">API Docs</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div id="view-dashboard" class="view active">
+                <div class="content-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h1 class="content-title">Overview</h1>
+                    <div id="real-time-clock" style="font-size: 14px; color: #666; font-family: 'SF Mono', monospace;"></div>
+                </div>
+                
+                <div class="content-body">
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-label">Total</div>
+                            <div class="metric-value" id="metric-total">0</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Requested</div>
+                            <div class="metric-value" id="metric-requested">0</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Batched</div>
+                            <div class="metric-value" id="metric-batched">0</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Sent</div>
+                            <div class="metric-value" id="metric-sent">0</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Settled</div>
+                            <div class="metric-value" id="metric-settled">0</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Returned</div>
+                            <div class="metric-value" id="metric-returned">0</div>
+                        </div>
+                    </div>
+
+                    <div class="table-section">
+                        <div class="table-header">
+                            <div class="table-title">Recent Transactions</div>
+                            <div class="filter-tabs">
+                                <button class="filter-tab active" onclick="filterPayments('', this)">All</button>
+                                <button class="filter-tab" onclick="filterPayments('Requested', this)">Requested</button>
+                                <button class="filter-tab" onclick="filterPayments('Sent', this)">Sent</button>
+                                <button class="filter-tab" onclick="filterPayments('Settled', this)">Settled</button>
+                            </div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th class="align-right">Amount</th>
+                                    <th>Status</th>
+                                    <th>Progress</th>
+                                    <th>Routing</th>
+                                    <th>Reason</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payments-tbody">
+                                <tr>
+                                    <td colspan="8" class="empty-state">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payments View -->
+            <div id="view-payments" class="view">
+                <div class="content-header">
+                    <h1 class="content-title">Payments</h1>
+                </div>
+                <div class="content-body">
+                    <div class="table-section">
+                        <div class="table-header">
+                            <div class="table-title">All Payments</div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th class="align-right">Amount</th>
+                                    <th>Status</th>
+                                    <th>Progress</th>
+                                    <th>Routing</th>
+                                    <th>Reason</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payments-tbody-all">
+                                <tr>
+                                    <td colspan="8" class="empty-state">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batches View -->
+            <div id="view-batches" class="view">
+                <div class="content-header">
+                    <h1 class="content-title">Batches</h1>
+                </div>
+                <div class="content-body">
+                    <div id="batches-full-container">
+                        <div class="empty-state">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Files View -->
+            <div id="view-files" class="view">
+                <div class="content-header">
+                    <h1 class="content-title">Files</h1>
+                </div>
+                <div class="content-body">
+                    <div class="table-section">
+                        <div class="table-header">
+                            <div class="table-title">NACHA Files</div>
+                        </div>
+                        <div style="padding: 24px;">
+                            <div id="nacha-full-container">
+                                <div class="empty-state">No files</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="right-panel">
+            <div class="panel-section">
+                <div class="panel-title">System</div>
+                <div class="info-card">
+                    <div class="info-label">Environment</div>
+                    <div class="info-value">Production</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Status</div>
+                    <div class="info-value">Active</div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">Actions</div>
+                <div class="action-list">
+                    <button class="action-btn primary" onclick="runBatch()">Run Batch</button>
+                    <button class="action-btn" onclick="simulateBank()">Simulate Bank</button>
+                    <button class="action-btn" onclick="processInbound()">Process Inbound</button>
+                    <button class="action-btn" onclick="refreshData()">Refresh</button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">New Payment</div>
+                <form class="quick-form" id="payment-form">
+                    <input class="field-input" type="text" id="amount" placeholder="$100.00" required>
+                    <input class="field-input" type="text" id="routing_number" pattern="[0-9]{9}" maxlength="9" placeholder="Routing" required>
+                    <input class="field-input" type="text" id="account_number" pattern="[0-9]+" placeholder="Account" required>
+                    
+                    <div class="reason-selector">
+                        <div class="reason-option" data-reason="claim">Claim</div>
+                        <div class="reason-option" data-reason="refund">Refund</div>
+                        <div class="reason-option" data-reason="settlement">Settlement</div>
+                        <div class="reason-option" data-reason="disbursement">Disbursement</div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="submit-btn" disabled>Send</button>
+                </form>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">Recent Batches</div>
+                <div id="batches-container">
+                    <div class="empty-state">Loading...</div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">Latest File</div>
+                <div id="nacha-container">
+                    <div class="empty-state">No file</div>
+                </div>
+            </div>
+            
+        </aside>
+    </div>
+
+    <div id="alert-container"></div>
+
+    <script>
+        const API_BASE = '';
+        const AUTH_HEADER = 'Bearer mock-token';
+        let selectedReason = '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPayments();
+            loadBatches();
+            loadNachaFile();
+            setupReasonSelector();
+            setupAmountInput();
+        });
+
+        function switchView(viewName, target) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(`view-${viewName}`).classList.add('active');
+            if (target) {
+                target.classList.add('active');
+            }
+
+            if (viewName === 'payments') {
+                loadAllPayments();
+            } else if (viewName === 'batches') {
+                loadAllBatches();
+            } else if (viewName === 'files') {
+                loadNachaFileFull();
+            }
+        }
+
+        function setupReasonSelector() {
+            document.querySelectorAll('.reason-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.reason-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedReason = this.dataset.reason;
+                    validateForm();
+                });
+            });
+        }
+
+        function setupAmountInput() {
+            const amountInput = document.getElementById('amount');
+            amountInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^0-9.]/g, '');
+                if (value && !value.startsWith('$')) {
+                    e.target.value = '$' + value;
+                }
+                validateForm();
+            });
+        }
+
+        function validateForm() {
+            const amount = document.getElementById('amount').value;
+            const routing = document.getElementById('routing_number').value;
+            const account = document.getElementById('account_number').value;
+            const submitBtn = document.getElementById('submit-btn');
+            
+            const isValid = amount && routing.length === 9 && account && selectedReason;
+            submitBtn.disabled = !isValid;
+        }
+
+        document.getElementById('routing_number').addEventListener('input', validateForm);
+        document.getElementById('account_number').addEventListener('input', validateForm);
+
+        // Toast notification system - prevents duplicates and manages state
+        let currentToast = null;
+
+        function showAlert(message, type = 'success') {
+            const container = document.getElementById('alert-container');
+            
+            // Remove current toast if exists (replace, don't stack during same operation)
+            if (currentToast) {
+                currentToast.remove();
+            }
+            
+            const alert = document.createElement('div');
+            alert.className = `alert ${type}`;
+            alert.textContent = message;
+            container.appendChild(alert);
+            currentToast = alert;
+            
+            setTimeout(() => {
+                alert.remove();
+                if (currentToast === alert) {
+                    currentToast = null;
+                }
+            }, 3000);
+        }
+
+        document.getElementById('payment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const amountValue = document.getElementById('amount').value.replace('$', '');
+            
+            const payload = {
+                amount: parseFloat(amountValue),
+                routing_number: document.getElementById('routing_number').value,
+                account_number: document.getElementById('account_number').value,
+                payment_reason: selectedReason,
+                idempotency_key: `key-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/payments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': AUTH_HEADER
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    showAlert('Payment created', 'success');
+                    document.getElementById('payment-form').reset();
+                    document.querySelectorAll('.reason-option').forEach(o => o.classList.remove('selected'));
+                    selectedReason = '';
+                    document.getElementById('submit-btn').disabled = true;
+                    loadPayments();
+                } else {
+                    const error = await response.json();
+                    showAlert(error.detail || 'Failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error', 'error');
+            }
+        });
+
+        async function loadPayments(statusFilter = '') {
+            try {
+                const url = statusFilter 
+                    ? `${API_BASE}/payments?status=${statusFilter}`
+                    : `${API_BASE}/payments`;
+                
+                const response = await fetch(url, {
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+
+                if (!response.ok) throw new Error('Failed');
+
+                const data = await response.json();
+                const payments = data.payments || [];
+
+                updateMetrics(payments);
+                renderPaymentsTable(payments, 'payments-tbody');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadAllPayments() {
+            try {
+                const response = await fetch(`${API_BASE}/payments`, {
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+
+                if (!response.ok) throw new Error('Failed');
+
+                const data = await response.json();
+                const payments = data.payments || [];
+                renderPaymentsTable(payments, 'payments-tbody-all');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function renderPaymentsTable(payments, tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            if (payments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No payments</td></tr>';
+            } else {
+                tbody.innerHTML = payments.map(p => `
+                    <tr>
+                        <td><code>${p.transaction_id.substring(0, 8)}</code></td>
+                        <td class="align-right">$${p.amount.toFixed(2)}</td>
+                        <td><span class="status-text ${p.status.toLowerCase()}">${p.status}</span></td>
+                        <td>${renderProgress(p.status)}</td>
+                        <td><code>${maskRouting(p.routing_number)}</code></td>
+                        <td>${p.payment_reason}</td>
+                        <td>${formatDate(p.created_at)}</td>
+                        <td>
+                            <a href="#" onclick="viewHistory('${p.transaction_id}'); return false;" style="color: #666; text-decoration: none; font-size: 12px; margin-right: 8px;">History</a>
+                            ${p.status === 'Requested' ? `<a href="#" onclick="cancelPayment('${p.transaction_id}'); return false;" style="color: #ef4444; text-decoration: none; font-size: 12px;">Cancel</a>` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function updateMetrics(payments) {
+            const metrics = {
+                total: payments.length,
+                requested: payments.filter(p => p.status === 'Requested').length,
+                batched: payments.filter(p => p.status === 'Batched').length,
+                sent: payments.filter(p => p.status === 'Sent').length,
+                settled: payments.filter(p => p.status === 'Settled').length,
+                returned: payments.filter(p => p.status === 'Returned').length
+            };
+
+            Object.keys(metrics).forEach(key => {
+                const el = document.getElementById(`metric-${key}`);
+                if (el) el.textContent = metrics[key];
+            });
+        }
+
+        function renderProgress(status) {
+            const steps = ['Requested', 'Batched', 'Sent', 'Settled', 'Returned'];
+            const current = steps.indexOf(status);
+            
+            let html = '<div class="lifecycle-dots">';
+            for (let i = 0; i < 4; i++) {
+                html += `<div class="dot ${i <= current ? 'active' : ''}"></div>`;
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function maskRouting(routing) {
+            if (!routing || routing.length < 4) return routing;
+            return '****' + routing.slice(-5);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'Etc/GMT+4'
+            });
+        }
+
+        function filterPayments(status, target) {
+            document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+            if (target) {
+                target.classList.add('active');
+            }
+            loadPayments(status);
+        }
+
+        async function runBatch() {
+            // Show loading state with proper type
+            showAlert('Running batch...', 'loading');
+            
+            try {
+                // Wait for actual API response
+                const response = await fetch(`${API_BASE}/run-batch`, {
+                    method: 'POST',
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+
+                if (response.ok) {
+                    // Replace loading with success after completion
+                    showAlert('Batch completed', 'success');
+                    
+                    // Refresh data from database
+                    await loadPayments();
+                    await loadBatches();
+                    await loadNachaFile();
+                } else {
+                    showAlert('Batch failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error', 'error');
+            }
+        }
+
+        async function simulateBank() {
+            // Show loading state with proper type
+            showAlert('Simulating bank...', 'loading');
+            
+            try {
+                // Wait for actual API response
+                const response = await fetch(`${API_BASE}/simulate-bank`, {
+                    method: 'POST',
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+
+                if (response.ok) {
+                    // Replace loading with success after completion
+                    showAlert('Simulation completed', 'success');
+                    
+                    // Refresh data from database
+                    await loadPayments();
+                } else {
+                    showAlert('Simulation failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error', 'error');
+            }
+        }
+
+        async function processInbound() {
+            // Show loading state with proper type
+            showAlert('Processing inbound...', 'loading');
+            
+            try {
+                // Wait for actual API response
+                const response = await fetch(`${API_BASE}/process-inbound`, {
+                    method: 'POST',
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+
+                if (response.ok) {
+                    // Replace loading with success after completion
+                    showAlert('Processing completed', 'success');
+                    
+                    // Refresh data from database
+                    await loadPayments();
+                } else {
+                    showAlert('Processing failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error', 'error');
+            }
+        }
+
+        function refreshData() {
+            loadPayments();
+            loadBatches();
+            loadNachaFile();
+            showAlert('Refreshed', 'success');
+        }
+
+        async function cancelPayment(paymentId) {
+            if (!confirm('Are you sure you want to cancel this payment?')) {
+                return;
+            }
+
+            showAlert('Cancelling payment...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/payments/${paymentId}/cancel`, {
+                    method: 'POST',
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+
+                if (response.ok) {
+                    showAlert('Payment cancelled', 'success');
+                    await loadPayments();
+                    if (document.getElementById('view-payments').classList.contains('active')) {
+                        await loadAllPayments();
+                    }
+                } else {
+                    const error = await response.json();
+                    showAlert(error.detail || 'Failed to cancel', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error', 'error');
+            }
+        }
+
+        async function viewHistory(paymentId) {
+            try {
+                const response = await fetch(`${API_BASE}/payments/${paymentId}/history`, {
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const history = data.history || [];
+                    
+                    if (history.length === 0) {
+                        alert('No history available');
+                        return;
+                    }
+
+                    let historyText = `Payment History (${paymentId.substring(0, 8)})\n\n`;
+                    history.forEach(h => {
+                        const timestamp = formatDate(h.timestamp);
+                        historyText += `${timestamp}\n`;
+                        historyText += `  ${h.previous_status || 'None'} → ${h.new_status}\n`;
+                        if (h.notes) {
+                            historyText += `  ${h.notes}\n`;
+                        }
+                        historyText += `\n`;
+                    });
+
+                    alert(historyText);
+                } else {
+                    showAlert('Failed to load history', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error', 'error');
+            }
+        }
+
+        async function loadBatches() {
+            try {
+                const response = await fetch(`${API_BASE}/batches`, {
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+
+                const container = document.getElementById('batches-container');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const batches = data.batches || [];
+
+                    if (batches.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No batches</div>';
+                    } else {
+                        container.innerHTML = `
+                            <div class="batch-list">
+                                ${batches.slice(0, 3).map(b => `
+                                    <div class="batch-item">
+                                        <div class="batch-id">${b.batch_id.substring(0, 8)}</div>
+                                        <div class="batch-stats">
+                                            <span>${b.transaction_count} txns</span>
+                                            <span>$${b.total_amount.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                } else {
+                    container.innerHTML = '<div class="empty-state">Error</div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadAllBatches() {
+            try {
+                const response = await fetch(`${API_BASE}/batches`, {
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+
+                const container = document.getElementById('batches-full-container');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const batches = data.batches || [];
+
+                    if (batches.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No batches</div>';
+                    } else {
+                        container.innerHTML = `
+                            <div class="batch-list">
+                                ${batches.map(b => `
+                                    <div class="batch-item">
+                                        <div class="batch-id">${b.batch_id}</div>
+                                        <div class="batch-stats">
+                                            <span>${b.transaction_count} transactions</span>
+                                            <span>$${b.total_amount.toFixed(2)}</span>
+                                            <span>${formatDate(b.created_at)}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                } else {
+                    container.innerHTML = '<div class="empty-state">Error</div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadNachaFile() {
+            try {
+                const response = await fetch(`${API_BASE}/nacha-file`, {
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+
+                const container = document.getElementById('nacha-container');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    container.innerHTML = `
+                        <div class="nacha-viewer">
+                            <div class="nacha-content">${data.content.substring(0, 200)}...</div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '<div class="empty-state">No file</div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadNachaFileFull() {
+            try {
+                const response = await fetch(`${API_BASE}/nacha-file`, {
+                    headers: { 'Authorization': AUTH_HEADER }
+                });
+
+                const container = document.getElementById('nacha-full-container');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    container.innerHTML = `
+                        <div class="file-list">
+                            <div class="file-item">
+                                <span class="file-name">${data.filename}</span>
+                                <span class="file-size">${(data.content.length / 1024).toFixed(2)} KB</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <div class="nacha-viewer">
+                                <div class="nacha-content">${data.content}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '<div class="empty-state">No files</div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function updateClock() {
+            const clockElement = document.getElementById('real-time-clock');
+            if (clockElement) {
+                const now = new Date();
+                clockElement.textContent = now.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true,
+                    timeZone: 'Etc/GMT+4'
+                });
+            }
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

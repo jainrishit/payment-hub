@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.python-version
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Tooling and caches
+.pytest_cache/
+.mypy_cache/
+.pyright/
+.basedpyright/
+.coverage
+htmlcov/
+.bob/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Local runtime artifacts
+*.log
+payment_hub.db
+output/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
