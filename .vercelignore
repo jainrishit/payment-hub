@@ -1,0 +1,11 @@
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+.git/
+payment_hub.db
+output/
+.mypy_cache/
+.pytest_cache/

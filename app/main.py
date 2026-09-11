@@ -16,6 +16,7 @@ from app.models import Base, Batch
 from app.schemas import PaymentCreate, PaymentListResponse, PaymentResponse
 from app.services.bank_simulator import simulate_bank_processing
 from app.services.batch_service import process_end_of_day_batch
+from app.services.nacha_generator import OUTPUT_DIR as NACHA_OUTPUT_DIR
 from app.services.payment_service import (
     EventResponse,
     HistoryResponse,
@@ -66,11 +67,13 @@ class BatchListResponse(TypedDict):
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Payment Hub Prototype", version="1.0.0")
-templates = Jinja2Templates(directory="app/templates")
+# Use absolute paths so the app works correctly inside Vercel's serverless environment.
+_APP_DIR = Path(__file__).resolve().parent
+templates = Jinja2Templates(directory=str(_APP_DIR / "templates"))
 
-static_dir = Path("app/static")
+static_dir = _APP_DIR / "static"
 if static_dir.exists():
-    app.mount("/static", StaticFiles(directory="app/static"), name="static")
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -178,7 +181,7 @@ def cancel_payment_endpoint(payment_id: str, db: Annotated[Session, Depends(get_
 
 @app.get("/nacha-file", dependencies=[Depends(authorize_request)])
 def get_nacha_file() -> NachaFileResponse:
-    output_dir = Path("output")
+    output_dir = NACHA_OUTPUT_DIR
     if not output_dir.exists():
         raise HTTPException(status_code=404, detail="Output directory not found")
 

@@ -1,10 +1,15 @@
+import os
 from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
 
 from app.models import Payment
 
-OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "output"
+# On Vercel the filesystem is read-only except /tmp; write output there.
+if os.environ.get("VERCEL"):
+    OUTPUT_DIR = Path("/tmp/output")
+else:
+    OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "output"
 
 
 def _fixed(value: str, length: int, align: str = "left", fill: str = " ") -> str:
