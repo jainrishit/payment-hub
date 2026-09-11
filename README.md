@@ -37,27 +37,27 @@ Every status transition is recorded in an immutable history log, and business ev
 ## Business problem
 
 Operations and finance teams need a reliable way to:
-- accept payment requests
-- validate account and routing details
-- prevent duplicate submissions
-- batch eligible transactions for outbound processing
-- generate outbound payment files
-- simulate downstream bank responses
-- record status history and event logs for audit and support workflows
+- Accept payment requests
+- Validate account and routing details
+- Prevent duplicate submissions
+- Batch eligible transactions for outbound processing
+- Generate outbound payment files
+- Simulate downstream bank responses
+- Record status history and event logs for audit and support workflows
 
 Payment Hub demonstrates how those responsibilities can be organized into a service-oriented application with a clean UI and API surface.
 
 ## What is simulated
 
 This repository simulates several patterns found in real payment environments:
-- request intake and validation
-- idempotency protection
-- payment lifecycle state management
+- Request intake and validation
+- Idempotency protection
+- Payment lifecycle state management
 - ACH/NACHA-style outbound file generation
-- bank settlement / return / failure responses
-- return codes and failure reasons
-- immutable audit history
-- operational dashboards for status tracking
+- Bank settlement / return / failure responses
+- Return codes and failure reasons
+- Immutable audit history
+- Operational dashboards for status tracking
 
 This repository does **not** connect to a real bank, processor, clearing network, or customer data source.
 
@@ -96,11 +96,11 @@ Requested
 - `PaymentEvent`
 
 ### Key architectural characteristics
-- typed SQLAlchemy models
-- explicit state transition rules
-- event and history tracking for auditability
-- separation of validation, batching, simulation, and presentation concerns
-- local-first development experience with minimal dependencies
+- Typed SQLAlchemy models
+- Explicit state transition rules
+- Event and history tracking for auditability
+- Separation of validation, batching, simulation, and presentation concerns
+- Local-first development experience with minimal dependencies
 
 For a deeper technical walkthrough, see [`SYSTEM_ARCHITECTURE.md`](SYSTEM_ARCHITECTURE.md).
 
@@ -131,7 +131,7 @@ For a deeper technical walkthrough, see [`SYSTEM_ARCHITECTURE.md`](SYSTEM_ARCHIT
 
 ### Prerequisites
 - Python 3.9+
-- pip
+- Pip
 
 ### Setup
 
