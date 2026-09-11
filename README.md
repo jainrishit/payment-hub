@@ -6,6 +6,34 @@ This prototype is designed to demonstrate payment-domain modeling, backend archi
 
 Real-world payment systems are more than CRUD applications. They must enforce lifecycle rules, preserve audit history, reconcile operational files, and provide traceability across internal and external events. Payment Hub models those concerns in a compact, explainable system suitable for architecture discussion, demos, and workflow exploration.
 
+## How it works
+
+This prototype walks through the full end-to-end lifecycle of an ACH-style payment, from creation through bank response. Each step below corresponds to a real stage in production payment systems.
+
+**1. Payment creation**
+
+New payments are submitted by internal users, such as insurance operations teams, through the dashboard or API. A payment represents a disbursement instruction, for example a claim payout, refund, or settlement. Each submission is validated against basic rules (ABA routing format, account number format, amount bounds) and stored with a status of `Requested`. Duplicate submissions are blocked via an idempotency key.
+
+**2. Batch processing**
+
+Payments are not sent to the bank individually. Instead, they are grouped into a batch during an end-of-day processing run. Batching is how real payment systems handle high volumes efficiently and how clearing networks expect instructions to arrive. When a batch runs, all eligible `Requested` payments are grouped, assigned a batch ID, and advanced to `Batched`.
+
+**3. NACHA file generation**
+
+After batching, the system generates a NACHA file. NACHA is the standardized fixed-width file format that ACH networks and banks actually understand. It encodes each payment as a structured entry record with routing and account details, amounts, and trace numbers, wrapped in batch and file control records. This file represents the real outbound instruction sent to the bank.
+
+**4. Bank processing**
+
+In a live environment, the NACHA file would be transmitted to the bank or ACH operator. Here it is simulated. The bank processes the file and determines an outcome for each payment entry: settled, returned due to an issue (such as an invalid account), or failed.
+
+**5. Bank response handling (inbound)**
+
+The bank sends back a response indicating the result of each payment. This inbound step is what closes the loop. In this prototype, the bank simulation endpoint handles this: it reads all `Sent` payments and applies realistic outcomes, advancing each to `Settled`, `Returned`, or `Failed`. Return codes (such as R02 for account closed or R10 for authorization revoked) are recorded against failed entries, mirroring how real ACH returns work.
+
+**6. Audit trail**
+
+Every status transition is recorded in an immutable history log, and business events are emitted at each stage. This gives operators full traceability: who created a payment, when it was batched, what the bank responded, and why it failed if it did.
+
 ## Business problem
 
 Operations and finance teams need a reliable way to:
