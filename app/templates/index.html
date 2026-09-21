@@ -633,6 +633,7 @@
                                 <button class="filter-tab" onclick="filterPayments('Requested', this)">Requested</button>
                                 <button class="filter-tab" onclick="filterPayments('Sent', this)">Sent</button>
                                 <button class="filter-tab" onclick="filterPayments('Settled', this)">Settled</button>
+                                <button class="filter-tab" onclick="filterPayments('Returned', this)">Returned</button>
                             </div>
                         </div>
                         <table>
@@ -643,7 +644,7 @@
                                     <th>Status</th>
                                     <th>Progress</th>
                                     <th>Routing</th>
-                                    <th>Reason</th>
+                                    <th>Payment Reason</th>
                                     <th>Created</th>
                                     <th>Actions</th>
                                 </tr>
@@ -676,7 +677,7 @@
                                     <th>Status</th>
                                     <th>Progress</th>
                                     <th>Routing</th>
-                                    <th>Reason</th>
+                                    <th>Payment Reason</th>
                                     <th>Created</th>
                                     <th>Actions</th>
                                 </tr>
@@ -694,7 +695,7 @@
             <!-- Batches View -->
             <div id="view-batches" class="view">
                 <div class="content-header">
-                    <h1 class="content-title">Batches</h1>
+                    <h1 class="content-title">Batch Processing</h1>
                 </div>
                 <div class="content-body">
                     <div id="batches-full-container">
@@ -706,12 +707,12 @@
             <!-- Files View -->
             <div id="view-files" class="view">
                 <div class="content-header">
-                    <h1 class="content-title">Files</h1>
+                    <h1 class="content-title">NACHA Files</h1>
                 </div>
                 <div class="content-body">
                     <div class="table-section">
                         <div class="table-header">
-                            <div class="table-title">NACHA Files</div>
+                            <div class="table-title">Generated Files</div>
                         </div>
                         <div style="padding: 24px;">
                             <div id="nacha-full-container">
@@ -725,7 +726,7 @@
 
         <aside class="right-panel">
             <div class="panel-section">
-                <div class="panel-title">System</div>
+                <div class="panel-title">System Status</div>
                 <div class="info-card">
                     <div class="info-label">Environment</div>
                     <div class="info-value">Production</div>
@@ -740,7 +741,7 @@
                 <div class="panel-title">Actions</div>
                 <div class="action-list">
                     <button class="action-btn primary" onclick="runBatch()">Run Batch</button>
-                    <button class="action-btn" onclick="simulateBank()">Simulate Bank</button>
+                    <button class="action-btn" onclick="simulateBank()">Simulate Bank Response</button>
                     <button class="action-btn" onclick="processInbound()">Process Inbound</button>
                     <button class="action-btn" onclick="refreshData()">Refresh</button>
                 </div>
@@ -750,17 +751,21 @@
                 <div class="panel-title">New Payment</div>
                 <form class="quick-form" id="payment-form">
                     <input class="field-input" type="text" id="amount" placeholder="e.g. 2500.00" required>
+                    <small id="error-amount" style="color:#ef4444;font-size:11px;display:none;"></small>
                     <input class="field-input" type="text" id="routing_number" pattern="[0-9]{9}" maxlength="9" placeholder="021000021" required>
+                    <small id="error-routing" style="color:#ef4444;font-size:11px;display:none;"></small>
                     <input class="field-input" type="text" id="account_number" pattern="[0-9]+" placeholder="123456789" required>
+                    <small id="error-account" style="color:#ef4444;font-size:11px;display:none;"></small>
                     
                     <div class="reason-selector">
-                        <div class="reason-option" data-reason="claim">Claim</div>
-                        <div class="reason-option" data-reason="refund">Refund</div>
-                        <div class="reason-option" data-reason="settlement">Settlement</div>
-                        <div class="reason-option" data-reason="disbursement">Disbursement</div>
+                        <div class="reason-option" data-reason="Auto Claim Settlement">Auto Claim</div>
+                        <div class="reason-option" data-reason="Property Damage Claim">Property Damage</div>
+                        <div class="reason-option" data-reason="Premium Refund">Premium Refund</div>
+                        <div class="reason-option" data-reason="Disability Benefit Payment">Disability Benefit</div>
                     </div>
+                    <small id="error-reason" style="color:#ef4444;font-size:11px;display:none;"></small>
                     
-                    <button type="submit" class="submit-btn" id="submit-btn" disabled>Send</button>
+                    <button type="submit" class="submit-btn" id="submit-btn" disabled>Submit Payment</button>
                 </form>
             </div>
 
@@ -772,7 +777,7 @@
             </div>
 
             <div class="panel-section">
-                <div class="panel-title">Latest File</div>
+                <div class="panel-title">Latest NACHA File</div>
                 <div id="nacha-container">
                     <div class="empty-state">No file</div>
                 </div>
@@ -874,18 +879,71 @@
             }, 3000);
         }
 
+        function clearFieldError(id) {
+            const el = document.getElementById(id);
+            if (el) { el.textContent = ''; el.style.display = 'none'; }
+        }
+
+        function showFieldError(id, msg) {
+            const el = document.getElementById(id);
+            if (el) { el.textContent = msg; el.style.display = 'block'; }
+        }
+
+        function translateApiError(detail) {
+            if (!detail) return 'Payment could not be submitted. Please review the form.';
+            const d = detail.toLowerCase();
+            if (d.includes('routing') && d.includes('9')) return 'Routing number must be exactly 9 digits.';
+            if (d.includes('routing')) return 'Invalid routing number. Please enter a valid 9-digit ABA routing number.';
+            if (d.includes('account') && (d.includes('8') || d.includes('17'))) return 'Account number must be between 8 and 17 digits.';
+            if (d.includes('account')) return 'Invalid account number. Please check and try again.';
+            if (d.includes('amount') && d.includes('0')) return 'Amount must be greater than $0.00.';
+            if (d.includes('amount')) return 'Invalid amount. Please enter a positive dollar value.';
+            if (d.includes('reason')) return 'Please select a payment reason before submitting.';
+            if (d.includes('duplicate') || d.includes('idempotency')) return 'This payment was already submitted. Refresh and try again.';
+            return detail;
+        }
+
         document.getElementById('payment-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
+            // Clear any previous field errors
+            ['error-amount', 'error-routing', 'error-account', 'error-reason'].forEach(clearFieldError);
+
             const amountValue = document.getElementById('amount').value.replace('$', '');
-            
+
+            // Client-side field validation with inline errors
+            let hasError = false;
+            if (!amountValue || isNaN(parseFloat(amountValue)) || parseFloat(amountValue) <= 0) {
+                showFieldError('error-amount', 'Please enter a valid payment amount greater than $0.00.');
+                hasError = true;
+            }
+            const routing = document.getElementById('routing_number').value;
+            if (!routing || routing.length !== 9 || !/^\d{9}$/.test(routing)) {
+                showFieldError('error-routing', 'Routing number must be exactly 9 digits.');
+                hasError = true;
+            }
+            const account = document.getElementById('account_number').value;
+            if (!account || account.length < 8 || account.length > 17) {
+                showFieldError('error-account', 'Account number must be between 8 and 17 digits.');
+                hasError = true;
+            }
+            if (!selectedReason) {
+                showFieldError('error-reason', 'Please select a payment reason.');
+                hasError = true;
+            }
+            if (hasError) return;
+
             const payload = {
                 amount: parseFloat(amountValue),
-                routing_number: document.getElementById('routing_number').value,
-                account_number: document.getElementById('account_number').value,
+                routing_number: routing,
+                account_number: account,
                 payment_reason: selectedReason,
                 idempotency_key: `key-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
             };
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
 
             try {
                 const response = await fetch(`${API_BASE}/payments`, {
@@ -898,18 +956,38 @@
                 });
 
                 if (response.ok) {
-                    showAlert('Payment created', 'success');
+                    const data = await response.json();
+                    const amount = parseFloat(amountValue).toFixed(2);
+                    showAlert(`Payment of $${amount} created successfully.`, 'success');
                     document.getElementById('payment-form').reset();
                     document.querySelectorAll('.reason-option').forEach(o => o.classList.remove('selected'));
                     selectedReason = '';
-                    document.getElementById('submit-btn').disabled = true;
+                    submitBtn.textContent = 'Submit Payment';
+                    submitBtn.disabled = true;
                     loadPayments();
                 } else {
                     const error = await response.json();
-                    showAlert(error.detail || 'Failed', 'error');
+                    const msg = translateApiError(error.detail);
+                    // Route field-specific errors to inline elements
+                    const d = (error.detail || '').toLowerCase();
+                    if (d.includes('routing')) {
+                        showFieldError('error-routing', msg);
+                    } else if (d.includes('account')) {
+                        showFieldError('error-account', msg);
+                    } else if (d.includes('amount')) {
+                        showFieldError('error-amount', msg);
+                    } else if (d.includes('reason')) {
+                        showFieldError('error-reason', msg);
+                    } else {
+                        showAlert(msg, 'error');
+                    }
+                    submitBtn.textContent = 'Submit Payment';
+                    submitBtn.disabled = false;
                 }
             } catch (error) {
-                showAlert('Network error', 'error');
+                showAlert('Network error. Please check your connection and try again.', 'error');
+                submitBtn.textContent = 'Submit Payment';
+                submitBtn.disabled = false;
             }
         });
 
@@ -1028,7 +1106,7 @@
 
         async function runBatch() {
             showAlert('Running batch...', 'loading');
-            
+
             try {
                 const response = await fetch(`${API_BASE}/run-batch`, {
                     method: 'POST',
@@ -1039,24 +1117,27 @@
                     const data = await response.json();
                     const result = data.data || {};
                     if (!result.batch_id) {
-                        showAlert('No eligible Requested payments available.', 'error');
+                        showAlert('No eligible payments available for batching. Create a Requested payment first.', 'error');
                     } else {
-                        showAlert('Batch completed', 'success');
+                        const count = result.total_transactions || 0;
+                        const amt = result.total_amount ? `$${parseFloat(result.total_amount).toFixed(2)}` : '';
+                        const label = count === 1 ? 'Payment' : 'Payments';
+                        showAlert(`${count} ${label} Added To Batch${amt ? ' — ' + amt + ' total' : ''}.`, 'success');
                     }
                     await loadPayments();
                     await loadBatches();
                     await loadNachaFile();
                 } else {
-                    showAlert('Batch failed', 'error');
+                    showAlert('Batch processing failed. Please try again.', 'error');
                 }
             } catch (error) {
-                showAlert('Network error', 'error');
+                showAlert('Network error. Please check your connection and try again.', 'error');
             }
         }
 
         async function simulateBank() {
-            showAlert('Simulating bank...', 'loading');
-            
+            showAlert('Simulating bank response...', 'loading');
+
             try {
                 const response = await fetch(`${API_BASE}/simulate-bank`, {
                     method: 'POST',
@@ -1067,16 +1148,20 @@
                     const data = await response.json();
                     const result = data.data || {};
                     if (!result.total || result.total === 0) {
-                        showAlert('No Sent payments available for simulation.', 'error');
+                        showAlert('No Sent payments available for simulation. Run Batch first.', 'error');
                     } else {
-                        showAlert('Simulation completed', 'success');
+                        const parts = [];
+                        if (result.settled > 0) parts.push(`${result.settled} Settled`);
+                        if (result.returned > 0) parts.push(`${result.returned} Returned`);
+                        if (result.failed > 0) parts.push(`${result.failed} Failed`);
+                        showAlert(`Bank Simulation Complete — ${parts.join(', ')}.`, 'success');
                     }
                     await loadPayments();
                 } else {
-                    showAlert('Simulation failed', 'error');
+                    showAlert('Bank simulation failed. Please try again.', 'error');
                 }
             } catch (error) {
-                showAlert('Network error', 'error');
+                showAlert('Network error. Please check your connection and try again.', 'error');
             }
         }
 
@@ -1140,6 +1225,19 @@
             }
         }
 
+        function friendlyStatus(s) {
+            const map = {
+                'Requested': 'Payment Created',
+                'Batched': 'Added to Batch',
+                'Sent': 'Sent to Bank',
+                'Settled': 'Settled',
+                'Returned': 'Returned by Bank',
+                'Failed': 'Processing Failed',
+                'Cancelled': 'Cancelled'
+            };
+            return map[s] || s;
+        }
+
         async function viewHistory(paymentId) {
             try {
                 const response = await fetch(`${API_BASE}/payments/${paymentId}/history`, {
@@ -1149,29 +1247,31 @@
                 if (response.ok) {
                     const data = await response.json();
                     const history = data.history || [];
-                    
+
                     if (history.length === 0) {
-                        alert('No history available');
+                        alert('No history available for this payment.');
                         return;
                     }
 
-                    let historyText = `Payment History (${paymentId.substring(0, 8)})\n\n`;
-                    history.forEach(h => {
+                    let historyText = `Payment History — ID: ${paymentId.substring(0, 8)}\n${'─'.repeat(42)}\n\n`;
+                    history.forEach((h, i) => {
                         const timestamp = formatDate(h.timestamp);
-                        historyText += `${timestamp}\n`;
-                        historyText += `  ${h.previous_status || 'None'} → ${h.new_status}\n`;
+                        const from = h.previous_status ? friendlyStatus(h.previous_status) : 'New';
+                        const to = friendlyStatus(h.new_status);
+                        historyText += `${i + 1}. ${timestamp}\n`;
+                        historyText += `   ${from} → ${to}\n`;
                         if (h.notes) {
-                            historyText += `  ${h.notes}\n`;
+                            historyText += `   Note: ${h.notes}\n`;
                         }
-                        historyText += `\n`;
+                        historyText += '\n';
                     });
 
                     alert(historyText);
                 } else {
-                    showAlert('Failed to load history', 'error');
+                    showAlert('Unable to load payment history. Please try again.', 'error');
                 }
             } catch (error) {
-                showAlert('Network error', 'error');
+                showAlert('Network error. Please check your connection and try again.', 'error');
             }
         }
 

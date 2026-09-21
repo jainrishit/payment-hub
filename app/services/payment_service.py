@@ -144,7 +144,7 @@ def create_payment(db: Session, payload: PaymentCreate) -> PaymentResponseDict:
             previous_status=None,
             new_status="Requested",
             timestamp=datetime.now(timezone.utc),
-            notes="Payment created and validated",
+            notes="Payment created and queued for batch processing",
         )
     )
 

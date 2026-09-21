@@ -75,7 +75,7 @@ def process_end_of_day_batch(db: Session) -> BatchResult:
             db,
             payment,
             "Batched",
-            f"Payment added to batch {batch_id}",
+            f"Added to batch for ACH processing",
         )
         if success:
             emit_event(
@@ -121,7 +121,7 @@ def process_end_of_day_batch(db: Session) -> BatchResult:
             db,
             payment,
             "Sent",
-            f"Payment sent in batch {batch_id}",
+            "NACHA file generated and dispatched to bank",
         )
         if success:
             emit_event(
