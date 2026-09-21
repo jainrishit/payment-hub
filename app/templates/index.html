@@ -742,7 +742,6 @@
                 <div class="action-list">
                     <button class="action-btn primary" onclick="runBatch()">Run Batch</button>
                     <button class="action-btn" onclick="simulateBank()">Simulate Bank Response</button>
-                    <button class="action-btn" onclick="processInbound()">Process Inbound</button>
                     <button class="action-btn" onclick="refreshData()">Refresh</button>
                 </div>
             </div>
@@ -750,7 +749,7 @@
             <div class="panel-section">
                 <div class="panel-title">New Payment</div>
                 <form class="quick-form" id="payment-form">
-                    <input class="field-input" type="text" id="amount" placeholder="e.g. 2500.00" required>
+                    <input class="field-input" type="text" id="amount" placeholder="2500.00" required>
                     <small id="error-amount" style="color:#ef4444;font-size:11px;display:none;"></small>
                     <input class="field-input" type="text" id="routing_number" pattern="[0-9]{9}" maxlength="9" placeholder="021000021" required>
                     <small id="error-routing" style="color:#ef4444;font-size:11px;display:none;"></small>
@@ -1036,7 +1035,7 @@
             } else {
                 tbody.innerHTML = payments.map(p => `
                     <tr>
-                        <td><code>${p.transaction_id.substring(0, 8)}</code></td>
+                        <td><code>${formatPaymentRef(p.transaction_id, p.created_at)}</code></td>
                         <td class="align-right">$${p.amount.toFixed(2)}</td>
                         <td><span class="status-text ${p.status.toLowerCase()}">${p.status}</span></td>
                         <td>${renderProgress(p.status)}</td>
@@ -1044,7 +1043,7 @@
                         <td>${p.payment_reason}</td>
                         <td>${formatDate(p.created_at)}</td>
                         <td>
-                            <a href="#" onclick="viewHistory('${p.transaction_id}'); return false;" style="color: #666; text-decoration: none; font-size: 12px; margin-right: 8px;">History</a>
+                            <a href="#" onclick="viewHistory('${p.transaction_id}', '${p.created_at}'); return false;" style="color: #666; text-decoration: none; font-size: 12px; margin-right: 8px;">History</a>
                             ${p.status === 'Requested' ? `<a href="#" onclick="cancelPayment('${p.transaction_id}'); return false;" style="color: #ef4444; text-decoration: none; font-size: 12px;">Cancel</a>` : ''}
                         </td>
                     </tr>
@@ -1078,6 +1077,14 @@
             }
             html += '</div>';
             return html;
+        }
+
+        function formatPaymentRef(transactionId, createdAt) {
+            // Format: PAY-YYYYMMDD-NNNNN using creation date + last 5 hex chars of UUID
+            const date = createdAt ? new Date(createdAt) : new Date();
+            const ymd = date.toISOString().slice(0, 10).replace(/-/g, '');
+            const suffix = transactionId.replace(/-/g, '').slice(-5).toUpperCase();
+            return `PAY-${ymd}-${suffix}`;
         }
 
         function maskRouting(routing) {
@@ -1165,31 +1172,6 @@
             }
         }
 
-        async function processInbound() {
-            // Show loading state with proper type
-            showAlert('Processing inbound...', 'loading');
-            
-            try {
-                // Wait for actual API response
-                const response = await fetch(`${API_BASE}/process-inbound`, {
-                    method: 'POST',
-                    headers: { 'Authorization': AUTH_HEADER }
-                });
-
-                if (response.ok) {
-                    // Replace loading with success after completion
-                    showAlert('Processing completed', 'success');
-                    
-                    // Refresh data from database
-                    await loadPayments();
-                } else {
-                    showAlert('Processing failed', 'error');
-                }
-            } catch (error) {
-                showAlert('Network error', 'error');
-            }
-        }
-
         function refreshData() {
             loadPayments();
             loadBatches();
@@ -1238,7 +1220,7 @@
             return map[s] || s;
         }
 
-        async function viewHistory(paymentId) {
+        async function viewHistory(paymentId, createdAt) {
             try {
                 const response = await fetch(`${API_BASE}/payments/${paymentId}/history`, {
                     headers: { 'Authorization': AUTH_HEADER }
@@ -1253,7 +1235,8 @@
                         return;
                     }
 
-                    let historyText = `Payment History — ID: ${paymentId.substring(0, 8)}\n${'─'.repeat(42)}\n\n`;
+                    const ref = formatPaymentRef(paymentId, createdAt);
+                    let historyText = `Payment History — ${ref}\n${'─'.repeat(42)}\n\n`;
                     history.forEach((h, i) => {
                         const timestamp = formatDate(h.timestamp);
                         const from = h.previous_status ? friendlyStatus(h.previous_status) : 'New';
