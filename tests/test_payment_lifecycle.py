@@ -332,25 +332,6 @@ def test_cancel_already_batched_payment_fails(db):
     assert exc_info.value.status_code == 400
 
 
-# ── Load samples endpoint ──────────────────────────────────────────────────────
-
-def test_load_samples_creates_payments(client):
-    res = client.post("/load-samples", headers=AUTH)
-    assert res.status_code == 200
-    data = res.json()
-    assert data["data"]["created"] == 6
-
-
-def test_load_samples_idempotent(client):
-    """Calling load-samples twice should not fail and report skips."""
-    client.post("/load-samples", headers=AUTH)
-    res = client.post("/load-samples", headers=AUTH)
-    assert res.status_code == 200
-    data = res.json()
-    assert data["data"]["created"] == 0
-    assert data["data"]["skipped"] == 6
-
-
 # ── Auth ───────────────────────────────────────────────────────────────────────
 
 def test_missing_auth_header_returns_401(client):

@@ -29,51 +29,6 @@ from app.services.payment_service import (
     list_payments,
 )
 
-SAMPLE_PAYMENTS = [
-    {
-        "amount": 2500.00,
-        "routing_number": "021000021",
-        "account_number": "123456789",
-        "payment_reason": "Auto Claim Settlement",
-        "idempotency_key": "demo-auto-claim-001",
-    },
-    {
-        "amount": 175.00,
-        "routing_number": "026009593",
-        "account_number": "987654321",
-        "payment_reason": "Premium Refund",
-        "idempotency_key": "demo-premium-refund-001",
-    },
-    {
-        "amount": 8250.00,
-        "routing_number": "011000015",
-        "account_number": "456789123",
-        "payment_reason": "Property Damage Claim",
-        "idempotency_key": "demo-property-damage-001",
-    },
-    {
-        "amount": 620.00,
-        "routing_number": "021000021",
-        "account_number": "567891234",
-        "payment_reason": "Medical Expense Reimbursement",
-        "idempotency_key": "demo-medical-reimb-001",
-    },
-    {
-        "amount": 1850.00,
-        "routing_number": "026009593",
-        "account_number": "678912345",
-        "payment_reason": "Disability Benefit",
-        "idempotency_key": "demo-disability-benefit-001",
-    },
-    {
-        "amount": 12500.00,
-        "routing_number": "011000015",
-        "account_number": "789123456",
-        "payment_reason": "Catastrophe Claim Settlement",
-        "idempotency_key": "demo-catastrophe-claim-001",
-    },
-]
-
 
 class SuccessEnvelope(TypedDict):
     success: bool
@@ -239,30 +194,6 @@ def get_nacha_file() -> NachaFileResponse:
         "filename": latest_file.name,
         "content": latest_file.read_text(encoding="utf-8"),
         "created_at": datetime.fromtimestamp(latest_file.stat().st_mtime, tz=timezone.utc).isoformat(),
-    }
-
-
-@app.post("/load-samples", dependencies=[Depends(authorize_request)])
-def load_sample_payments(db: Annotated[Session, Depends(get_db)]) -> SuccessEnvelope:
-    """Load realistic insurance sample payments for demo purposes."""
-    created = 0
-    skipped = 0
-    for sample in SAMPLE_PAYMENTS:
-        try:
-            create_payment(db, PaymentCreate(**sample))
-            created += 1
-        except Exception:
-            skipped += 1
-    if created == 0:
-        return {
-            "success": True,
-            "message": f"Sample payments already loaded ({skipped} skipped — idempotency keys already exist). Reset the database to reload.",
-            "data": {"created": 0, "skipped": skipped},
-        }
-    return {
-        "success": True,
-        "message": f"{created} sample insurance payments created successfully.",
-        "data": {"created": created, "skipped": skipped},
     }
 
 
