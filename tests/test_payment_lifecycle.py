@@ -235,7 +235,6 @@ def test_batch_with_no_requested_payments_returns_empty(db):
     result = process_end_of_day_batch(db)
     assert result["batch_id"] is None
     assert result["total_transactions"] == 0
-    assert "no" in result["message"].lower() or "0" in result["message"].lower() or result["total_transactions"] == 0
 
 
 def test_batch_processes_requested_payments(db):
@@ -277,7 +276,6 @@ def test_simulate_bank_with_no_sent_payments_returns_zero(db, tmp_path, monkeypa
     monkeypatch.setattr(bs, "OUTPUT_DIR", tmp_path)
     result = simulate_bank_processing(db)
     assert result["total"] == 0
-    assert "no sent" in result["message"].lower() or result["total"] == 0
 
 
 def test_simulate_bank_processes_sent_payments(db, tmp_path, monkeypatch):
@@ -286,7 +284,6 @@ def test_simulate_bank_processes_sent_payments(db, tmp_path, monkeypatch):
     monkeypatch.setattr(bs, "OUTPUT_DIR", tmp_path)
     monkeypatch.setattr(ng, "OUTPUT_DIR", tmp_path)
 
-    # Need a NACHA file (or not — after fix, it's optional)
     payment = Payment(
         id="sim1", amount=2500.0, routing_number="021000021",
         account_number="123456789", payment_reason="Auto Claim Settlement",
