@@ -9,10 +9,9 @@ from sqlalchemy.orm import Session
 
 from app.models import Payment
 from app.services.event_system import EventType, PaymentLifecycleEngine, emit_event
+from app.services.nacha_generator import OUTPUT_DIR
 
 logger = logging.getLogger(__name__)
-
-OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "output"
 
 RETURN_CODES = {
     "R01": "Insufficient Funds",
@@ -55,11 +54,10 @@ class BankResponseFile(TypedDict):
     results: list[SimulationResult]
 
 
-def _latest_nacha_file() -> Path:
+def _latest_nacha_file() -> Optional[Path]:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     files = sorted(OUTPUT_DIR.glob("nacha_*.txt"))
-    if not files:
-        raise FileNotFoundError("No NACHA files found in output directory")
-    return files[-1]
+    return files[-1] if files else None
 
 
 def _get_random_return_code() -> tuple[str, str]:
@@ -70,18 +68,7 @@ def _get_random_return_code() -> tuple[str, str]:
 def simulate_bank_processing(db: Session) -> BankSimulationResult:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    try:
-        nacha_file = _latest_nacha_file()
-    except FileNotFoundError as exc:
-        logger.error("No NACHA file found: %s", exc)
-        return {
-            "message": "No NACHA file found",
-            "response_file": None,
-            "total": 0,
-            "settled": 0,
-            "returned": 0,
-            "failed": 0,
-        }
+    nacha_file = _latest_nacha_file()
 
     sent_payments = (
         db.query(Payment)
@@ -202,7 +189,7 @@ def simulate_bank_processing(db: Session) -> BankSimulationResult:
     response_file = OUTPUT_DIR / f"bank_response_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json"
     response_data: BankResponseFile = {
         "processed_at": datetime.now(timezone.utc).isoformat(),
-        "nacha_file": str(nacha_file),
+        "nacha_file": str(nacha_file) if nacha_file else "N/A",
         "summary": {
             "total": len(results),
             "settled": settled_count,

@@ -71,13 +71,12 @@ def validate_payment_reason(reason: str) -> tuple[bool, Optional[str]]:
     Validate payment reason.
     Returns (is_valid, error_message)
     """
-    if not reason:
+    if not reason or not reason.strip():
         return False, "Payment reason is required"
-    
-    valid_reasons = ["claim", "refund", "settlement", "disbursement", "commission", "payroll"]
-    if reason.lower() not in valid_reasons:
-        return False, f"Payment reason must be one of: {', '.join(valid_reasons)}"
-    
+
+    if len(reason) > 100:
+        return False, "Payment reason must not exceed 100 characters"
+
     return True, None
 
 

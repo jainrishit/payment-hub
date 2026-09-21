@@ -3,16 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Hub</title>
+    <title>Payment Hub — Insurance Disbursement Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -22,139 +18,148 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .app-container {
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
+        .app-container { display: flex; height: 100vh; overflow: hidden; }
 
+        /* ── Sidebar ── */
         .sidebar {
-            width: 220px;
+            width: 224px;
             background: #fff;
             border-right: 1px solid #e5e5e5;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
         }
-
         .sidebar-header {
-            padding: 24px 20px;
+            padding: 20px;
             border-bottom: 1px solid #e5e5e5;
         }
-
-        .logo {
-            font-size: 16px;
+        .logo-mark {
+            font-size: 15px;
             font-weight: 600;
             color: #1a1a1a;
+            letter-spacing: -0.2px;
         }
-
-        .nav {
-            padding: 16px 0;
+        .logo-sub {
+            font-size: 11px;
+            color: #999;
+            margin-top: 1px;
         }
-
+        .nav { padding: 12px 0; flex: 1; }
         .nav-item {
-            padding: 10px 20px;
-            font-size: 14px;
+            display: block;
+            padding: 9px 20px;
+            font-size: 13.5px;
             color: #666;
             cursor: pointer;
-            transition: color 0.15s;
             border-left: 2px solid transparent;
+            transition: color 0.12s;
+            text-decoration: none;
         }
-
-        .nav-item:hover {
-            color: #1a1a1a;
-        }
-
+        .nav-item:hover { color: #1a1a1a; }
         .nav-item.active {
             color: #1a1a1a;
             font-weight: 500;
             border-left-color: #1a1a1a;
-        }
-
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
             background: #fafafa;
         }
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e5e5e5;
+        }
+        .lifecycle-legend {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .lifecycle-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .lifecycle-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11.5px;
+            color: #666;
+        }
+        .step-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .step-dot.requested  { background: #94a3b8; }
+        .step-dot.batched    { background: #f59e0b; }
+        .step-dot.sent       { background: #3b82f6; }
+        .step-dot.settled    { background: #10b981; }
+        .step-dot.returned   { background: #f97316; }
+        .step-dot.failed     { background: #ef4444; }
+        .step-dot.cancelled  { background: #d1d5db; }
 
+        /* ── Main content ── */
+        .main-content { flex: 1; overflow-y: auto; background: #fafafa; }
         .content-header {
             background: #fff;
             border-bottom: 1px solid #e5e5e5;
-            padding: 20px 32px;
-        }
-
-        .content-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
-        .content-body {
-            padding: 40px 32px;
-        }
-
-        .view {
-            display: none;
-            animation: fadeIn 0.15s ease;
-        }
-
-        .view.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .metrics {
+            padding: 18px 32px;
             display: flex;
-            gap: 24px;
-            margin-bottom: 40px;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .content-title { font-size: 18px; font-weight: 600; color: #1a1a1a; }
+        .content-subtitle { font-size: 12px; color: #999; margin-top: 1px; }
+        .content-body { padding: 32px; }
+
+        .view { display: none; animation: fadeIn 0.14s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(3px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
+        /* ── Metrics ── */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1px;
+            background: #e5e5e5;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 28px;
+        }
         .metric {
-            flex: 1;
+            background: #fff;
+            padding: 16px 20px;
         }
+        .metric-label { font-size: 11px; color: #999; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+        .metric-value { font-size: 26px; font-weight: 600; color: #1a1a1a; }
+        .metric-value.settled-color { color: #10b981; }
+        .metric-value.returned-color { color: #f97316; }
 
-        .metric-label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 4px;
-        }
-
-        .metric-value {
-            font-size: 28px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
+        /* ── Tables ── */
         .table-section {
             background: #fff;
             border: 1px solid #e5e5e5;
             border-radius: 8px;
             overflow: hidden;
         }
-
         .table-header {
-            padding: 16px 24px;
+            padding: 14px 24px;
             border-bottom: 1px solid #e5e5e5;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
-        .table-title {
-            font-size: 14px;
-            font-weight: 500;
-            color: #1a1a1a;
-        }
-
-        .filter-tabs {
-            display: flex;
-            gap: 2px;
-        }
-
+        .table-title { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+        .filter-tabs { display: flex; gap: 2px; }
         .filter-tab {
             padding: 4px 10px;
             font-size: 12px;
@@ -163,27 +168,17 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.12s;
+            font-family: inherit;
         }
+        .filter-tab:hover { color: #1a1a1a; }
+        .filter-tab.active { background: #1a1a1a; color: #fff; }
 
-        .filter-tab:hover {
-            color: #1a1a1a;
-        }
-
-        .filter-tab.active {
-            background: #1a1a1a;
-            color: #fff;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
+        table { width: 100%; border-collapse: collapse; }
         th {
             text-align: left;
-            padding: 12px 24px;
-            font-size: 11px;
+            padding: 10px 24px;
+            font-size: 10.5px;
             font-weight: 500;
             color: #999;
             background: #fafafa;
@@ -191,226 +186,167 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
-        th.align-right {
-            text-align: right;
-        }
-
+        th.align-right { text-align: right; }
         td {
-            padding: 14px 24px;
+            padding: 13px 24px;
             font-size: 13px;
             color: #1a1a1a;
             border-bottom: 1px solid #f5f5f5;
+            vertical-align: middle;
         }
+        td.align-right { text-align: right; font-variant-numeric: tabular-nums; }
+        tbody tr { transition: background 0.08s; }
+        tbody tr:hover { background: #fafafa; }
+        tbody tr:last-child td { border-bottom: none; }
 
-        td.align-right {
-            text-align: right;
-        }
-
-        tbody tr {
-            transition: background 0.1s;
-        }
-
-        tbody tr:hover {
-            background: #fafafa;
-        }
-
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .status-text {
-            font-size: 13px;
-            color: #666;
-        }
-
-        .status-text.settled {
-            color: #10b981;
-        }
-
-        .status-text.returned {
-            color: #ef4444;
-        }
-
-        .lifecycle-dots {
-            display: flex;
-            gap: 4px;
+        /* ── Status badges ── */
+        .status-badge {
+            display: inline-flex;
             align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 100px;
         }
+        .status-badge .badge-dot { width: 5px; height: 5px; border-radius: 50%; }
+        .status-badge.requested  { background: #f1f5f9; color: #475569; }
+        .status-badge.requested .badge-dot  { background: #94a3b8; }
+        .status-badge.batched    { background: #fffbeb; color: #92400e; }
+        .status-badge.batched .badge-dot    { background: #f59e0b; }
+        .status-badge.sent       { background: #eff6ff; color: #1d4ed8; }
+        .status-badge.sent .badge-dot       { background: #3b82f6; }
+        .status-badge.settled    { background: #f0fdf4; color: #15803d; }
+        .status-badge.settled .badge-dot    { background: #10b981; }
+        .status-badge.returned   { background: #fff7ed; color: #c2410c; }
+        .status-badge.returned .badge-dot   { background: #f97316; }
+        .status-badge.failed     { background: #fef2f2; color: #b91c1c; }
+        .status-badge.failed .badge-dot     { background: #ef4444; }
+        .status-badge.cancelled  { background: #f9fafb; color: #6b7280; }
+        .status-badge.cancelled .badge-dot  { background: #d1d5db; }
 
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #e5e5e5;
-        }
+        /* ── Progress dots ── */
+        .lifecycle-dots { display: flex; gap: 3px; align-items: center; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: #e5e5e5; }
+        .dot.active { background: #1a1a1a; }
+        .dot.settled-dot { background: #10b981; }
+        .dot.returned-dot { background: #f97316; }
+        .dot.failed-dot { background: #ef4444; }
 
-        .dot.active {
-            background: #1a1a1a;
-        }
-
+        /* ── Right panel ── */
         .right-panel {
-            width: 320px;
+            width: 300px;
             background: #fff;
             border-left: 1px solid #e5e5e5;
             overflow-y: auto;
             flex-shrink: 0;
         }
-
         .panel-section {
-            padding: 24px;
+            padding: 20px;
             border-bottom: 1px solid #e5e5e5;
         }
-
         .panel-title {
-            font-size: 12px;
-            font-weight: 500;
-            color: #666;
-            margin-bottom: 16px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .info-card {
-            background: #fafafa;
-            border: 1px solid #e5e5e5;
-            border-radius: 4px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-
-        .info-label {
-            font-size: 11px;
+            font-size: 10.5px;
+            font-weight: 600;
             color: #999;
-            margin-bottom: 4px;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
         }
-
-        .info-value {
-            font-size: 13px;
-            color: #1a1a1a;
-            font-family: 'SF Mono', monospace;
-        }
-
-        .action-list {
+        .info-row {
             display: flex;
-            flex-direction: column;
-            gap: 6px;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            font-size: 12.5px;
+        }
+        .info-row-label { color: #999; }
+        .info-row-value { color: #1a1a1a; font-weight: 500; }
+        .status-dot-online {
+            display: inline-block;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #10b981;
+            margin-right: 5px;
         }
 
+        /* ── Action buttons ── */
+        .action-list { display: flex; flex-direction: column; gap: 6px; }
         .action-btn {
             padding: 8px 12px;
             border: 1px solid #e5e5e5;
-            border-radius: 4px;
-            font-size: 12px;
+            border-radius: 5px;
+            font-size: 12.5px;
             color: #1a1a1a;
             background: #fff;
             cursor: pointer;
-            transition: border-color 0.15s;
+            transition: border-color 0.12s, background 0.12s;
             text-align: left;
-        }
-
-        .action-btn:hover {
-            border-color: #1a1a1a;
-        }
-
-        .action-btn.primary {
-            background: #1a1a1a;
-            color: #fff;
-            border-color: #1a1a1a;
-        }
-
-        .action-btn.primary:hover {
-            background: #333;
-        }
-
-        .quick-form {
+            font-family: inherit;
             display: flex;
-            flex-direction: column;
-            gap: 16px;
+            justify-content: space-between;
+            align-items: center;
         }
+        .action-btn:hover { border-color: #1a1a1a; }
+        .action-btn.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+        .action-btn.primary:hover { background: #333; }
+        .action-btn.accent { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+        .action-btn.accent:hover { background: #1e40af; }
+        .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .action-btn-hint { font-size: 10px; color: inherit; opacity: 0.6; }
 
-        .form-row {
-            display: flex;
-            gap: 8px;
-        }
-
+        /* ── Payment form ── */
+        .quick-form { display: flex; flex-direction: column; gap: 14px; }
+        .form-field { display: flex; flex-direction: column; gap: 4px; }
+        .form-label { font-size: 10.5px; font-weight: 500; color: #999; text-transform: uppercase; letter-spacing: 0.4px; }
         .field-input {
-            flex: 1;
-            padding: 8px 0;
+            padding: 7px 0;
             border: none;
             border-bottom: 1px solid #e5e5e5;
             font-size: 13px;
             color: #1a1a1a;
             background: transparent;
             transition: border-color 0.15s;
+            font-family: inherit;
+            width: 100%;
         }
-
-        .field-input:focus {
-            outline: none;
-            border-bottom-color: #1a1a1a;
-        }
-
-        .field-input::placeholder {
-            color: #999;
-        }
-
+        .field-input:focus { outline: none; border-bottom-color: #1a1a1a; }
+        .field-input::placeholder { color: #c0c0c0; }
+        .field-hint { font-size: 10.5px; color: #b0b0b0; }
         input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
-        .reason-selector {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-
+        .reason-selector { display: flex; gap: 4px; flex-wrap: wrap; }
         .reason-option {
-            padding: 4px 10px;
+            padding: 4px 9px;
             border: 1px solid #e5e5e5;
             border-radius: 4px;
             font-size: 11px;
             color: #666;
             background: #fff;
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.12s;
+            font-family: inherit;
         }
-
-        .reason-option:hover {
-            border-color: #1a1a1a;
-            color: #1a1a1a;
-        }
-
-        .reason-option.selected {
-            background: #1a1a1a;
-            color: #fff;
-            border-color: #1a1a1a;
-        }
+        .reason-option:hover { border-color: #1a1a1a; color: #1a1a1a; }
+        .reason-option.selected { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
 
         .submit-btn {
-            padding: 10px 16px;
+            padding: 9px 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             font-size: 13px;
             font-weight: 500;
             color: #fff;
             background: #1a1a1a;
             cursor: pointer;
-            transition: background 0.15s;
+            transition: background 0.12s;
+            font-family: inherit;
         }
+        .submit-btn:hover { background: #333; }
+        .submit-btn:disabled { background: #e5e5e5; color: #999; cursor: not-allowed; }
 
-        .submit-btn:hover {
-            background: #333;
-        }
-
-        .submit-btn:disabled {
-            background: #e5e5e5;
-            color: #999;
-            cursor: not-allowed;
-        }
-
-        /* Toast Notification System - Fixed Stacking */
+        /* ── Toast notifications ── */
         #alert-container {
             position: fixed;
             top: 20px;
@@ -418,906 +354,1009 @@
             z-index: 10000;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             pointer-events: none;
+            max-width: 360px;
         }
-
         .alert {
-            padding: 12px 16px;
-            border-radius: 4px;
+            padding: 11px 15px;
+            border-radius: 6px;
             font-size: 13px;
             background: #fff;
             border: 1px solid #e5e5e5;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            animation: slideIn 0.2s ease, fadeOut 0.2s ease 2.8s;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            animation: slideIn 0.18s ease;
             pointer-events: auto;
-            min-width: 200px;
+            line-height: 1.45;
         }
-
         @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(110%); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
         }
+        .alert.loading { border-left: 3px solid #3b82f6; color: #1d4ed8; }
+        .alert.success { border-left: 3px solid #10b981; color: #15803d; }
+        .alert.error   { border-left: 3px solid #ef4444; color: #b91c1c; }
+        .alert.info    { border-left: 3px solid #f59e0b; color: #92400e; }
 
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-            }
-        }
-
-        .alert.loading {
-            border-color: #3b82f6;
-            color: #3b82f6;
-        }
-
-        .alert.success {
-            border-color: #10b981;
-            color: #10b981;
-        }
-
-        .alert.error {
-            border-color: #ef4444;
-            color: #ef4444;
-        }
-
-        .batch-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
+        /* ── Batch items ── */
+        .batch-list { display: flex; flex-direction: column; gap: 7px; }
         .batch-item {
-            padding: 10px;
+            padding: 10px 12px;
             border: 1px solid #e5e5e5;
-            border-radius: 4px;
+            border-radius: 5px;
             font-size: 12px;
-            transition: border-color 0.15s;
         }
-
-        .batch-item:hover {
-            border-color: #1a1a1a;
-        }
-
         .batch-id {
-            font-family: 'SF Mono', monospace;
+            font-family: 'IBM Plex Mono', monospace;
             color: #666;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
             font-size: 11px;
         }
+        .batch-stats { display: flex; justify-content: space-between; color: #999; font-size: 11px; }
 
-        .batch-stats {
-            display: flex;
-            justify-content: space-between;
-            color: #999;
-            font-size: 11px;
-        }
-
+        /* ── NACHA viewer ── */
         .nacha-viewer {
-            background: #1a1a1a;
-            border-radius: 4px;
-            padding: 16px;
-            max-height: 300px;
+            background: #0f172a;
+            border-radius: 5px;
+            padding: 14px;
+            max-height: 280px;
             overflow-y: auto;
         }
-
         .nacha-content {
-            font-family: 'SF Mono', monospace;
-            font-size: 11px;
-            line-height: 1.6;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10.5px;
+            line-height: 1.65;
             color: #10b981;
             white-space: pre;
         }
 
+        /* ── Empty states ── */
         .empty-state {
-            padding: 40px;
+            padding: 48px 24px;
             text-align: center;
-            color: #999;
+            color: #aaa;
             font-size: 13px;
+            line-height: 1.6;
         }
-
-        code {
-            font-family: 'SF Mono', monospace;
+        .empty-state strong { display: block; color: #666; font-size: 14px; margin-bottom: 6px; }
+        .empty-state-small {
+            padding: 20px;
+            text-align: center;
+            color: #aaa;
             font-size: 12px;
-            color: #666;
         }
 
-        .file-list {
+        /* ── History modal ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 5000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: #fff;
+            border-radius: 8px;
+            width: 520px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e5e5;
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            justify-content: space-between;
+            align-items: center;
         }
+        .modal-title { font-size: 15px; font-weight: 600; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+            padding: 2px 6px;
+        }
+        .modal-close:hover { color: #1a1a1a; }
+        .modal-body { padding: 20px 24px; }
+        .history-entry {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .history-entry:last-child { border-bottom: none; }
+        .history-transition {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .history-arrow { color: #999; font-size: 12px; }
+        .history-time { font-size: 11.5px; color: #999; }
+        .history-notes { font-size: 11.5px; color: #666; margin-top: 3px; }
 
+        /* ── File view ── */
         .file-item {
-            padding: 12px;
+            padding: 12px 16px;
             border: 1px solid #e5e5e5;
-            border-radius: 4px;
+            border-radius: 5px;
             font-size: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: border-color 0.15s;
+        }
+        .file-name { font-family: 'IBM Plex Mono', monospace; color: #1a1a1a; font-size: 12px; }
+        .file-meta { color: #999; font-size: 11px; }
+
+        code {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11.5px;
+            color: #555;
         }
 
-        .file-item:hover {
-            border-color: #1a1a1a;
+        .action-link {
+            color: #555;
+            text-decoration: none;
+            font-size: 12px;
+            cursor: pointer;
         }
+        .action-link:hover { color: #1a1a1a; text-decoration: underline; }
+        .action-link.danger { color: #ef4444; }
+        .action-link.danger:hover { color: #b91c1c; }
 
-        .file-name {
-            font-family: 'SF Mono', monospace;
-            color: #1a1a1a;
+        /* ── Batches full view ── */
+        .batch-full-item {
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
         }
-
-        .file-size {
-            color: #999;
-            font-size: 11px;
+        .batch-full-id {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
         }
-
-        @media (max-width: 1024px) {
-            .right-panel {
-                display: none;
-            }
+        .batch-full-stats {
+            display: flex;
+            gap: 24px;
+            font-size: 12.5px;
+            color: #555;
         }
+        .batch-full-stat strong { color: #1a1a1a; font-weight: 600; }
 
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
+        @media (max-width: 1100px) { .right-panel { display: none; } }
+        @media (max-width: 768px)  { .sidebar { display: none; } }
+        @media (max-width: 1300px) {
+            .metrics { grid-template-columns: repeat(3, 1fr); }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">Payment Hub</div>
-            </div>
-            <nav class="nav">
-                <div class="nav-item active" onclick="switchView('dashboard', this)">Dashboard</div>
-                <div class="nav-item" onclick="switchView('payments', this)">Payments</div>
-                <div class="nav-item" onclick="switchView('batches', this)">Batches</div>
-                <div class="nav-item" onclick="switchView('files', this)">Files</div>
-                <a href="/api-docs" class="nav-item" style="text-decoration: none;">API Docs</a>
-            </nav>
-        </aside>
+<div class="app-container">
 
-        <main class="main-content">
-            <!-- Dashboard View -->
-            <div id="view-dashboard" class="view active">
-                <div class="content-header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <h1 class="content-title">Overview</h1>
-                    <div id="real-time-clock" style="font-size: 14px; color: #666; font-family: 'SF Mono', monospace;"></div>
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-mark">Payment Hub</div>
+            <div class="logo-sub">Insurance Disbursement Platform</div>
+        </div>
+        <nav class="nav">
+            <div class="nav-item active" onclick="switchView('dashboard', this)">Dashboard</div>
+            <div class="nav-item" onclick="switchView('payments', this)">Payments</div>
+            <div class="nav-item" onclick="switchView('batches', this)">Batches</div>
+            <div class="nav-item" onclick="switchView('files', this)">NACHA Files</div>
+            <a href="/api-docs" class="nav-item">API Docs</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="lifecycle-legend">Payment Lifecycle</div>
+            <div class="lifecycle-steps">
+                <div class="lifecycle-step"><div class="step-dot requested"></div>Requested</div>
+                <div class="lifecycle-step"><div class="step-dot batched"></div>Batched</div>
+                <div class="lifecycle-step"><div class="step-dot sent"></div>Sent</div>
+                <div class="lifecycle-step"><div class="step-dot settled"></div>Settled</div>
+                <div class="lifecycle-step"><div class="step-dot returned"></div>Returned</div>
+                <div class="lifecycle-step"><div class="step-dot failed"></div>Failed</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ── Main content ── -->
+    <main class="main-content">
+
+        <!-- Dashboard View -->
+        <div id="view-dashboard" class="view active">
+            <div class="content-header">
+                <div>
+                    <div class="content-title">Overview</div>
+                    <div class="content-subtitle">Real-time payment status across all lifecycle stages</div>
                 </div>
-                
-                <div class="content-body">
-                    <div class="metrics">
-                        <div class="metric">
-                            <div class="metric-label">Total</div>
-                            <div class="metric-value" id="metric-total">0</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-label">Requested</div>
-                            <div class="metric-value" id="metric-requested">0</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-label">Batched</div>
-                            <div class="metric-value" id="metric-batched">0</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-label">Sent</div>
-                            <div class="metric-value" id="metric-sent">0</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-label">Settled</div>
-                            <div class="metric-value" id="metric-settled">0</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-label">Returned</div>
-                            <div class="metric-value" id="metric-returned">0</div>
+                <div id="real-time-clock" style="font-size: 13px; color: #999; font-family: 'IBM Plex Mono', monospace;"></div>
+            </div>
+            <div class="content-body">
+                <div class="metrics">
+                    <div class="metric">
+                        <div class="metric-label">Total</div>
+                        <div class="metric-value" id="metric-total">—</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Requested</div>
+                        <div class="metric-value" id="metric-requested">—</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Batched</div>
+                        <div class="metric-value" id="metric-batched">—</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Sent</div>
+                        <div class="metric-value" id="metric-sent">—</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Settled</div>
+                        <div class="metric-value settled-color" id="metric-settled">—</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Returned</div>
+                        <div class="metric-value returned-color" id="metric-returned">—</div>
+                    </div>
+                </div>
+
+                <div class="table-section">
+                    <div class="table-header">
+                        <div class="table-title">Recent Transactions</div>
+                        <div class="filter-tabs">
+                            <button class="filter-tab active" onclick="filterPayments('', this)">All</button>
+                            <button class="filter-tab" onclick="filterPayments('Requested', this)">Requested</button>
+                            <button class="filter-tab" onclick="filterPayments('Sent', this)">Sent</button>
+                            <button class="filter-tab" onclick="filterPayments('Settled', this)">Settled</button>
+                            <button class="filter-tab" onclick="filterPayments('Returned', this)">Returned</button>
                         </div>
                     </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th class="align-right">Amount</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Reason</th>
+                                <th>Routing</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-tbody">
+                            <tr><td colspan="8" class="empty-state"><strong>No payments yet</strong>Use "Load Sample Payments" to get started, or create a payment using the form.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-                    <div class="table-section">
-                        <div class="table-header">
-                            <div class="table-title">Recent Transactions</div>
-                            <div class="filter-tabs">
-                                <button class="filter-tab active" onclick="filterPayments('', this)">All</button>
-                                <button class="filter-tab" onclick="filterPayments('Requested', this)">Requested</button>
-                                <button class="filter-tab" onclick="filterPayments('Sent', this)">Sent</button>
-                                <button class="filter-tab" onclick="filterPayments('Settled', this)">Settled</button>
+        <!-- Payments View -->
+        <div id="view-payments" class="view">
+            <div class="content-header">
+                <div>
+                    <div class="content-title">All Payments</div>
+                    <div class="content-subtitle">Complete payment register with full lifecycle history</div>
+                </div>
+            </div>
+            <div class="content-body">
+                <div class="table-section">
+                    <div class="table-header">
+                        <div class="table-title">Payment Register</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th class="align-right">Amount</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Reason</th>
+                                <th>Routing</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-tbody-all">
+                            <tr><td colspan="8" class="empty-state"><strong>No payments yet</strong>Use "Load Sample Payments" to get started, or create a payment using the form.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batches View -->
+        <div id="view-batches" class="view">
+            <div class="content-header">
+                <div>
+                    <div class="content-title">Batch Processing</div>
+                    <div class="content-subtitle">ACH batch runs and NACHA file generation history</div>
+                </div>
+            </div>
+            <div class="content-body">
+                <div id="batches-full-container">
+                    <div class="empty-state">
+                        <strong>No batches processed yet</strong>
+                        Create payments in Requested status, then click "Run Batch" to group them into an ACH batch and generate a NACHA file.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Files View -->
+        <div id="view-files" class="view">
+            <div class="content-header">
+                <div>
+                    <div class="content-title">NACHA Files</div>
+                    <div class="content-subtitle">ACH-format disbursement files ready for bank transmission</div>
+                </div>
+            </div>
+            <div class="content-body">
+                <div class="table-section">
+                    <div class="table-header">
+                        <div class="table-title">Generated Files</div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div id="nacha-full-container">
+                            <div class="empty-state">
+                                <strong>No NACHA files generated yet</strong>
+                                Run a batch to generate an ACH-format NACHA file for bank transmission.
                             </div>
                         </div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th class="align-right">Amount</th>
-                                    <th>Status</th>
-                                    <th>Progress</th>
-                                    <th>Routing</th>
-                                    <th>Reason</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="payments-tbody">
-                                <tr>
-                                    <td colspan="8" class="empty-state">Loading...</td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Payments View -->
-            <div id="view-payments" class="view">
-                <div class="content-header">
-                    <h1 class="content-title">Payments</h1>
+    </main>
+
+    <!-- ── Right panel ── -->
+    <aside class="right-panel">
+
+        <div class="panel-section">
+            <div class="panel-title">System Status</div>
+            <div class="info-row">
+                <span class="info-row-label">Platform</span>
+                <span class="info-row-value">Insurance Hub v1.0</span>
+            </div>
+            <div class="info-row">
+                <span class="info-row-label">Status</span>
+                <span class="info-row-value"><span class="status-dot-online"></span>Operational</span>
+            </div>
+            <div class="info-row">
+                <span class="info-row-label">Protocol</span>
+                <span class="info-row-value">ACH / NACHA</span>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="panel-title">Demo Quick Start</div>
+            <div class="action-list">
+                <button class="action-btn accent" onclick="loadSamples()">
+                    Load Sample Payments
+                    <span class="action-btn-hint">6 insurance cases</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="panel-title">Batch Processing</div>
+            <div class="action-list">
+                <button class="action-btn primary" onclick="runBatch()">
+                    Run Batch
+                    <span class="action-btn-hint">Groups Requested → Sent</span>
+                </button>
+                <button class="action-btn" onclick="simulateBank()">
+                    Simulate Bank Response
+                    <span class="action-btn-hint">Settles / Returns Sent payments</span>
+                </button>
+                <button class="action-btn" onclick="refreshData()">
+                    Refresh Data
+                </button>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="panel-title">New Payment</div>
+            <form class="quick-form" id="payment-form">
+                <div class="form-field">
+                    <label class="form-label">Amount (USD)</label>
+                    <input class="field-input" type="text" id="amount" placeholder="e.g. 2500.00" required autocomplete="off">
                 </div>
-                <div class="content-body">
-                    <div class="table-section">
-                        <div class="table-header">
-                            <div class="table-title">All Payments</div>
-                        </div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th class="align-right">Amount</th>
-                                    <th>Status</th>
-                                    <th>Progress</th>
-                                    <th>Routing</th>
-                                    <th>Reason</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="payments-tbody-all">
-                                <tr>
-                                    <td colspan="8" class="empty-state">Loading...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="form-field">
+                    <label class="form-label">Routing Number</label>
+                    <input class="field-input" type="text" id="routing_number" pattern="[0-9]{9}" maxlength="9" placeholder="9-digit ABA (e.g. 021000021)" required autocomplete="off">
+                    <span class="field-hint">9-digit ABA routing number</span>
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Account Number</label>
+                    <input class="field-input" type="text" id="account_number" pattern="[0-9]+" maxlength="17" placeholder="e.g. 123456789" required autocomplete="off">
+                    <span class="field-hint">Up to 17 digits</span>
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Payment Reason</label>
+                    <input class="field-input" type="text" id="payment_reason_input" placeholder="e.g. Auto Claim Settlement" maxlength="100" required autocomplete="off">
+                    <div class="reason-selector" style="margin-top: 6px;">
+                        <div class="reason-option" data-reason="Auto Claim Settlement">Auto Claim</div>
+                        <div class="reason-option" data-reason="Premium Refund">Refund</div>
+                        <div class="reason-option" data-reason="Property Damage Claim">Property</div>
+                        <div class="reason-option" data-reason="Disability Benefit">Disability</div>
                     </div>
                 </div>
-            </div>
+                <button type="submit" class="submit-btn" id="submit-btn" disabled>Submit Payment</button>
+            </form>
+        </div>
 
-            <!-- Batches View -->
-            <div id="view-batches" class="view">
-                <div class="content-header">
-                    <h1 class="content-title">Batches</h1>
-                </div>
-                <div class="content-body">
-                    <div id="batches-full-container">
-                        <div class="empty-state">Loading...</div>
-                    </div>
-                </div>
+        <div class="panel-section">
+            <div class="panel-title">Recent Batches</div>
+            <div id="batches-container">
+                <div class="empty-state-small">No batches yet</div>
             </div>
+        </div>
 
-            <!-- Files View -->
-            <div id="view-files" class="view">
-                <div class="content-header">
-                    <h1 class="content-title">Files</h1>
-                </div>
-                <div class="content-body">
-                    <div class="table-section">
-                        <div class="table-header">
-                            <div class="table-title">NACHA Files</div>
-                        </div>
-                        <div style="padding: 24px;">
-                            <div id="nacha-full-container">
-                                <div class="empty-state">No files</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="panel-section">
+            <div class="panel-title">Latest NACHA File</div>
+            <div id="nacha-container">
+                <div class="empty-state-small">No file generated yet</div>
             </div>
-        </main>
+        </div>
 
-        <aside class="right-panel">
-            <div class="panel-section">
-                <div class="panel-title">System</div>
-                <div class="info-card">
-                    <div class="info-label">Environment</div>
-                    <div class="info-value">Production</div>
-                </div>
-                <div class="info-card">
-                    <div class="info-label">Status</div>
-                    <div class="info-value">Active</div>
-                </div>
-            </div>
+    </aside>
+</div>
 
-            <div class="panel-section">
-                <div class="panel-title">Actions</div>
-                <div class="action-list">
-                    <button class="action-btn primary" onclick="runBatch()">Run Batch</button>
-                    <button class="action-btn" onclick="simulateBank()">Simulate Bank</button>
-                    <button class="action-btn" onclick="processInbound()">Process Inbound</button>
-                    <button class="action-btn" onclick="refreshData()">Refresh</button>
-                </div>
-            </div>
+<div id="alert-container"></div>
 
-            <div class="panel-section">
-                <div class="panel-title">New Payment</div>
-                <form class="quick-form" id="payment-form">
-                    <input class="field-input" type="text" id="amount" placeholder="$100.00" required>
-                    <input class="field-input" type="text" id="routing_number" pattern="[0-9]{9}" maxlength="9" placeholder="Routing" required>
-                    <input class="field-input" type="text" id="account_number" pattern="[0-9]+" placeholder="Account" required>
-                    
-                    <div class="reason-selector">
-                        <div class="reason-option" data-reason="claim">Claim</div>
-                        <div class="reason-option" data-reason="refund">Refund</div>
-                        <div class="reason-option" data-reason="settlement">Settlement</div>
-                        <div class="reason-option" data-reason="disbursement">Disbursement</div>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn" id="submit-btn" disabled>Send</button>
-                </form>
-            </div>
-
-            <div class="panel-section">
-                <div class="panel-title">Recent Batches</div>
-                <div id="batches-container">
-                    <div class="empty-state">Loading...</div>
-                </div>
-            </div>
-
-            <div class="panel-section">
-                <div class="panel-title">Latest File</div>
-                <div id="nacha-container">
-                    <div class="empty-state">No file</div>
-                </div>
-            </div>
-            
-        </aside>
+<!-- History Modal -->
+<div class="modal-overlay" id="history-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="modal-title">Payment History</div>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
     </div>
+</div>
 
-    <div id="alert-container"></div>
+<script>
+    const API_BASE = '';
+    const AUTH = 'Bearer mock-token';
+    let selectedReason = '';
 
-    <script>
-        const API_BASE = '';
-        const AUTH_HEADER = 'Bearer mock-token';
-        let selectedReason = '';
+    // ── Init ──────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        loadPayments();
+        loadBatches();
+        loadNachaFile();
+        setupReasonSelector();
+        setupFormValidation();
+        updateClock();
+        setInterval(updateClock, 1000);
+    });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadPayments();
-            loadBatches();
-            loadNachaFile();
-            setupReasonSelector();
-            setupAmountInput();
-        });
+    // ── View switching ────────────────────────────────────────────────
+    function switchView(viewName, target) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(`view-${viewName}`).classList.add('active');
+        if (target) target.classList.add('active');
 
-        function switchView(viewName, target) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            document.getElementById(`view-${viewName}`).classList.add('active');
-            if (target) {
-                target.classList.add('active');
-            }
+        if (viewName === 'payments')  loadAllPayments();
+        else if (viewName === 'batches') loadAllBatches();
+        else if (viewName === 'files')   loadNachaFileFull();
+    }
 
-            if (viewName === 'payments') {
-                loadAllPayments();
-            } else if (viewName === 'batches') {
-                loadAllBatches();
-            } else if (viewName === 'files') {
-                loadNachaFileFull();
-            }
-        }
-
-        function setupReasonSelector() {
-            document.querySelectorAll('.reason-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    document.querySelectorAll('.reason-option').forEach(o => o.classList.remove('selected'));
-                    this.classList.add('selected');
-                    selectedReason = this.dataset.reason;
-                    validateForm();
-                });
+    // ── Form ──────────────────────────────────────────────────────────
+    function setupReasonSelector() {
+        document.querySelectorAll('.reason-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.reason-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                document.getElementById('payment_reason_input').value = this.dataset.reason;
+                selectedReason = this.dataset.reason;
+                validateForm();
             });
-        }
+        });
+    }
 
-        function setupAmountInput() {
-            const amountInput = document.getElementById('amount');
-            amountInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/[^0-9.]/g, '');
-                if (value && !value.startsWith('$')) {
-                    e.target.value = '$' + value;
+    function setupFormValidation() {
+        ['amount','routing_number','account_number','payment_reason_input'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                if (id === 'payment_reason_input') {
+                    selectedReason = document.getElementById('payment_reason_input').value.trim();
+                    // Deselect chip if user typed manually
+                    document.querySelectorAll('.reason-option').forEach(o => {
+                        o.classList.toggle('selected', o.dataset.reason === selectedReason);
+                    });
                 }
                 validateForm();
             });
-        }
-
-        function validateForm() {
-            const amount = document.getElementById('amount').value;
-            const routing = document.getElementById('routing_number').value;
-            const account = document.getElementById('account_number').value;
-            const submitBtn = document.getElementById('submit-btn');
-            
-            const isValid = amount && routing.length === 9 && account && selectedReason;
-            submitBtn.disabled = !isValid;
-        }
-
-        document.getElementById('routing_number').addEventListener('input', validateForm);
-        document.getElementById('account_number').addEventListener('input', validateForm);
-
-        // Toast notification system - prevents duplicates and manages state
-        let currentToast = null;
-
-        function showAlert(message, type = 'success') {
-            const container = document.getElementById('alert-container');
-            
-            // Remove current toast if exists (replace, don't stack during same operation)
-            if (currentToast) {
-                currentToast.remove();
-            }
-            
-            const alert = document.createElement('div');
-            alert.className = `alert ${type}`;
-            alert.textContent = message;
-            container.appendChild(alert);
-            currentToast = alert;
-            
-            setTimeout(() => {
-                alert.remove();
-                if (currentToast === alert) {
-                    currentToast = null;
-                }
-            }, 3000);
-        }
-
-        document.getElementById('payment-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const amountValue = document.getElementById('amount').value.replace('$', '');
-            
-            const payload = {
-                amount: parseFloat(amountValue),
-                routing_number: document.getElementById('routing_number').value,
-                account_number: document.getElementById('account_number').value,
-                payment_reason: selectedReason,
-                idempotency_key: `key-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-            };
-
-            try {
-                const response = await fetch(`${API_BASE}/payments`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': AUTH_HEADER
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (response.ok) {
-                    showAlert('Payment created', 'success');
-                    document.getElementById('payment-form').reset();
-                    document.querySelectorAll('.reason-option').forEach(o => o.classList.remove('selected'));
-                    selectedReason = '';
-                    document.getElementById('submit-btn').disabled = true;
-                    loadPayments();
-                } else {
-                    const error = await response.json();
-                    showAlert(error.detail || 'Failed', 'error');
-                }
-            } catch (error) {
-                showAlert('Network error', 'error');
-            }
         });
+    }
 
-        async function loadPayments(statusFilter = '') {
-            try {
-                const url = statusFilter 
-                    ? `${API_BASE}/payments?status=${statusFilter}`
-                    : `${API_BASE}/payments`;
-                
-                const response = await fetch(url, {
-                    headers: { 'Authorization': AUTH_HEADER }
-                });
+    function validateForm() {
+        const amount  = document.getElementById('amount').value.trim();
+        const routing = document.getElementById('routing_number').value.trim();
+        const account = document.getElementById('account_number').value.trim();
+        const reason  = document.getElementById('payment_reason_input').value.trim();
+        const parsed  = parseFloat(amount.replace(/[^0-9.]/g, ''));
+        const isValid = !isNaN(parsed) && parsed > 0 && routing.length === 9 && /^\d+$/.test(routing)
+                        && account.length >= 1 && /^\d+$/.test(account) && reason.length > 0;
+        document.getElementById('submit-btn').disabled = !isValid;
+    }
 
-                if (!response.ok) throw new Error('Failed');
+    // ── Toast ─────────────────────────────────────────────────────────
+    const toastTimers = new Map();
 
-                const data = await response.json();
-                const payments = data.payments || [];
+    function showAlert(message, type = 'success', duration = 4000) {
+        const container = document.getElementById('alert-container');
+        const id = `toast-${Date.now()}`;
+        const el = document.createElement('div');
+        el.className = `alert ${type}`;
+        el.id = id;
+        el.textContent = message;
+        container.appendChild(el);
+        const timer = setTimeout(() => { el.remove(); toastTimers.delete(id); }, duration);
+        toastTimers.set(id, timer);
+        return id;
+    }
 
-                updateMetrics(payments);
-                renderPaymentsTable(payments, 'payments-tbody');
-            } catch (error) {
-                console.error('Error:', error);
-            }
+    function replaceAlert(id, message, type, duration = 4000) {
+        const el = document.getElementById(id);
+        if (el) {
+            clearTimeout(toastTimers.get(id));
+            el.className = `alert ${type}`;
+            el.textContent = message;
+            const timer = setTimeout(() => { el.remove(); toastTimers.delete(id); }, duration);
+            toastTimers.set(id, timer);
+        } else {
+            showAlert(message, type, duration);
         }
+    }
 
-        async function loadAllPayments() {
-            try {
-                const response = await fetch(`${API_BASE}/payments`, {
-                    headers: { 'Authorization': AUTH_HEADER }
-                });
+    // ── Payment form submit ───────────────────────────────────────────
+    document.getElementById('payment-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const amountRaw = document.getElementById('amount').value.replace(/[^0-9.]/g, '');
+        const routing   = document.getElementById('routing_number').value.trim();
+        const account   = document.getElementById('account_number').value.trim();
+        const reason    = document.getElementById('payment_reason_input').value.trim();
 
-                if (!response.ok) throw new Error('Failed');
+        const payload = {
+            amount: parseFloat(amountRaw),
+            routing_number: routing,
+            account_number: account,
+            payment_reason: reason,
+            idempotency_key: `key-${Date.now()}-${Math.random().toString(36).substr(2,9)}`
+        };
 
-                const data = await response.json();
-                const payments = data.payments || [];
-                renderPaymentsTable(payments, 'payments-tbody-all');
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
+        const tid = showAlert('Creating payment…', 'loading');
+        document.getElementById('submit-btn').disabled = true;
 
-        function renderPaymentsTable(payments, tbodyId) {
-            const tbody = document.getElementById(tbodyId);
-            if (payments.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No payments</td></tr>';
+        try {
+            const res = await fetch(`${API_BASE}/payments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': AUTH },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                replaceAlert(tid, `Payment created — ${reason}`, 'success');
+                document.getElementById('payment-form').reset();
+                document.querySelectorAll('.reason-option').forEach(o => o.classList.remove('selected'));
+                selectedReason = '';
+                document.getElementById('submit-btn').disabled = true;
+                await loadPayments();
             } else {
-                tbody.innerHTML = payments.map(p => `
-                    <tr>
-                        <td><code>${p.transaction_id.substring(0, 8)}</code></td>
-                        <td class="align-right">$${p.amount.toFixed(2)}</td>
-                        <td><span class="status-text ${p.status.toLowerCase()}">${p.status}</span></td>
-                        <td>${renderProgress(p.status)}</td>
-                        <td><code>${maskRouting(p.routing_number)}</code></td>
-                        <td>${p.payment_reason}</td>
-                        <td>${formatDate(p.created_at)}</td>
-                        <td>
-                            <a href="#" onclick="viewHistory('${p.transaction_id}'); return false;" style="color: #666; text-decoration: none; font-size: 12px; margin-right: 8px;">History</a>
-                            ${p.status === 'Requested' ? `<a href="#" onclick="cancelPayment('${p.transaction_id}'); return false;" style="color: #ef4444; text-decoration: none; font-size: 12px;">Cancel</a>` : ''}
-                        </td>
-                    </tr>
+                const err = await res.json();
+                const detail = err.detail;
+                let msg = 'Payment creation failed.';
+                if (typeof detail === 'string') {
+                    msg = friendlyValidationMessage(detail);
+                } else if (Array.isArray(detail)) {
+                    msg = detail.map(d => friendlyValidationMessage(d.msg || d.message || '')).join(' ');
+                }
+                replaceAlert(tid, msg, 'error', 6000);
+                document.getElementById('submit-btn').disabled = false;
+            }
+        } catch {
+            replaceAlert(tid, 'Network error — check your connection and try again.', 'error');
+            document.getElementById('submit-btn').disabled = false;
+        }
+    });
+
+    function friendlyValidationMessage(raw) {
+        if (!raw) return 'Validation error.';
+        const r = raw.toLowerCase();
+        if (r.includes('routing') && r.includes('checksum'))  return 'Invalid routing number — the ABA checksum failed. Try 021000021, 026009593, or 011000015.';
+        if (r.includes('routing') && r.includes('digit'))     return 'Routing number must be exactly 9 digits (e.g. 021000021).';
+        if (r.includes('routing'))                             return 'Invalid routing number (e.g. 021000021).';
+        if (r.includes('account') && r.includes('digit'))     return 'Account number must contain only digits.';
+        if (r.includes('account'))                             return 'Invalid account number.';
+        if (r.includes('amount') && r.includes('decimal'))    return 'Amount must have at most 2 decimal places.';
+        if (r.includes('amount') && r.includes('exceed'))     return 'Amount must not exceed $10,000,000.';
+        if (r.includes('amount'))                              return 'Amount must be greater than $0.';
+        if (r.includes('idempotency') || r.includes('duplicate')) return 'This payment reference already exists. Resubmit to create a new one.';
+        if (r.includes('reason'))                              return 'Payment reason is required.';
+        return raw;
+    }
+
+    // ── Payments table ────────────────────────────────────────────────
+    async function loadPayments(statusFilter = '') {
+        try {
+            const url = statusFilter ? `${API_BASE}/payments?status=${statusFilter}` : `${API_BASE}/payments`;
+            const res = await fetch(url, { headers: { 'Authorization': AUTH } });
+            if (!res.ok) return;
+            const data = await res.json();
+            const payments = data.payments || [];
+            updateMetrics(payments);
+            renderPaymentsTable(payments, 'payments-tbody');
+        } catch {}
+    }
+
+    async function loadAllPayments() {
+        try {
+            const res = await fetch(`${API_BASE}/payments`, { headers: { 'Authorization': AUTH } });
+            if (!res.ok) return;
+            const data = await res.json();
+            renderPaymentsTable(data.payments || [], 'payments-tbody-all');
+        } catch {}
+    }
+
+    function renderPaymentsTable(payments, tbodyId) {
+        const tbody = document.getElementById(tbodyId);
+        if (!tbody) return;
+        if (payments.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="empty-state"><strong>No payments found</strong>Use "Load Sample Payments" to start the demo, or create a payment using the form on the right.</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = payments.map(p => `
+            <tr>
+                <td><code>${p.transaction_id.substring(0,8)}…</code></td>
+                <td class="align-right"><strong>$${p.amount.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></td>
+                <td>${statusBadge(p.status)}</td>
+                <td>${renderProgress(p)}</td>
+                <td style="max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${p.payment_reason}">${p.payment_reason}</td>
+                <td><code>${maskRouting(p.routing_number)}</code></td>
+                <td style="color:#999;">${formatDate(p.created_at)}</td>
+                <td>
+                    <a class="action-link" onclick="viewHistory('${p.transaction_id}','${p.payment_reason}')">History</a>
+                    ${p.status === 'Requested' ? ` &nbsp;<a class="action-link danger" onclick="cancelPayment('${p.transaction_id}')">Cancel</a>` : ''}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function statusBadge(status) {
+        return `<span class="status-badge ${status.toLowerCase()}"><span class="badge-dot"></span>${status}</span>`;
+    }
+
+    function updateMetrics(payments) {
+        const m = {
+            total:     payments.length,
+            requested: payments.filter(p => p.status === 'Requested').length,
+            batched:   payments.filter(p => p.status === 'Batched').length,
+            sent:      payments.filter(p => p.status === 'Sent').length,
+            settled:   payments.filter(p => p.status === 'Settled').length,
+            returned:  payments.filter(p => p.status === 'Returned').length,
+        };
+        Object.entries(m).forEach(([k,v]) => {
+            const el = document.getElementById(`metric-${k}`);
+            if (el) el.textContent = v;
+        });
+    }
+
+    function renderProgress(p) {
+        // Determine position 0-4: Requested=0, Batched=1, Sent=2, terminal=3
+        const map = { Requested:0, Batched:1, Sent:2, Settled:3, Returned:3, Failed:3, Cancelled:3 };
+        const pos = map[p.status] ?? 0;
+        let dots = '';
+        for (let i = 0; i < 4; i++) {
+            let cls = 'dot';
+            if (i < pos) cls += ' active';
+            else if (i === pos) {
+                if (p.status === 'Settled')   cls += ' settled-dot';
+                else if (p.status === 'Returned') cls += ' returned-dot';
+                else if (p.status === 'Failed')   cls += ' failed-dot';
+                else cls += ' active';
+            }
+            dots += `<div class="${cls}"></div>`;
+        }
+        return `<div class="lifecycle-dots">${dots}</div>`;
+    }
+
+    function maskRouting(r) {
+        if (!r || r.length < 5) return r;
+        return '****' + r.slice(-5);
+    }
+
+    function formatDate(ds) {
+        return new Date(ds).toLocaleString('en-US', {
+            month:'short', day:'numeric',
+            hour:'2-digit', minute:'2-digit'
+        });
+    }
+
+    function filterPayments(status, target) {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        if (target) target.classList.add('active');
+        loadPayments(status);
+    }
+
+    // ── Actions ───────────────────────────────────────────────────────
+    async function loadSamples() {
+        const tid = showAlert('Loading sample insurance payments…', 'loading');
+        try {
+            const res = await fetch(`${API_BASE}/load-samples`, {
+                method: 'POST',
+                headers: { 'Authorization': AUTH }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                replaceAlert(tid, data.message, data.data.created > 0 ? 'success' : 'info', 5000);
+                await loadPayments();
+                await loadBatches();
+            } else {
+                replaceAlert(tid, 'Failed to load sample payments.', 'error');
+            }
+        } catch {
+            replaceAlert(tid, 'Network error.', 'error');
+        }
+    }
+
+    async function runBatch() {
+        const tid = showAlert('Running batch — grouping Requested payments…', 'loading');
+        try {
+            const res = await fetch(`${API_BASE}/run-batch`, {
+                method: 'POST',
+                headers: { 'Authorization': AUTH }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                const result = data.data || {};
+                if (!result.batch_id) {
+                    // No eligible payments
+                    replaceAlert(tid,
+                        'No eligible payments to batch. All payments must be in Requested status. Create a payment or load sample payments first.',
+                        'info', 6000);
+                } else {
+                    replaceAlert(tid,
+                        `Batch complete — ${result.total_transactions} payment${result.total_transactions !== 1 ? 's' : ''} sent ($${(result.total_amount||0).toLocaleString('en-US',{minimumFractionDigits:2})})`,
+                        'success', 5000);
+                }
+                await loadPayments();
+                await loadBatches();
+                await loadNachaFile();
+            } else {
+                replaceAlert(tid, 'Batch processing failed. See server logs for details.', 'error');
+            }
+        } catch {
+            replaceAlert(tid, 'Network error during batch processing.', 'error');
+        }
+    }
+
+    async function simulateBank() {
+        const tid = showAlert('Simulating bank response…', 'loading');
+        try {
+            const res = await fetch(`${API_BASE}/simulate-bank`, {
+                method: 'POST',
+                headers: { 'Authorization': AUTH }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                const result = data.data || {};
+                if (!result.total || result.total === 0) {
+                    replaceAlert(tid,
+                        'No Sent payments available for simulation. Run a batch first to move payments to Sent status.',
+                        'info', 6000);
+                } else {
+                    replaceAlert(tid,
+                        `Bank simulation complete — ${result.settled} settled, ${result.returned} returned, ${result.failed} failed (${result.total} total)`,
+                        'success', 6000);
+                }
+                await loadPayments();
+            } else {
+                replaceAlert(tid, 'Bank simulation failed. See server logs for details.', 'error');
+            }
+        } catch {
+            replaceAlert(tid, 'Network error during bank simulation.', 'error');
+        }
+    }
+
+    async function refreshData() {
+        await Promise.all([loadPayments(), loadBatches(), loadNachaFile()]);
+        showAlert('Data refreshed', 'success', 2000);
+    }
+
+    async function cancelPayment(paymentId) {
+        if (!confirm('Cancel this payment? This action cannot be undone.')) return;
+        const tid = showAlert('Cancelling payment…', 'loading');
+        try {
+            const res = await fetch(`${API_BASE}/payments/${paymentId}/cancel`, {
+                method: 'POST',
+                headers: { 'Authorization': AUTH }
+            });
+            if (res.ok) {
+                replaceAlert(tid, 'Payment cancelled successfully.', 'success');
+                await loadPayments();
+                if (document.getElementById('view-payments').classList.contains('active')) {
+                    await loadAllPayments();
+                }
+            } else {
+                const err = await res.json();
+                const detail = err.detail || '';
+                let msg = 'Unable to cancel payment.';
+                if (detail.toLowerCase().includes('requested')) {
+                    msg = 'This payment cannot be cancelled — it has already been batched or processed.';
+                } else if (detail) {
+                    msg = detail;
+                }
+                replaceAlert(tid, msg, 'error', 5000);
+            }
+        } catch {
+            replaceAlert(tid, 'Network error.', 'error');
+        }
+    }
+
+    // ── History modal ─────────────────────────────────────────────────
+    async function viewHistory(paymentId, reason) {
+        try {
+            const res = await fetch(`${API_BASE}/payments/${paymentId}/history`, {
+                headers: { 'Authorization': AUTH }
+            });
+            if (!res.ok) { showAlert('Unable to load payment history.', 'error'); return; }
+            const data = await res.json();
+            const history = data.history || [];
+
+            document.getElementById('modal-title').textContent =
+                `History — ${reason || paymentId.substring(0,8)}`;
+
+            if (history.length === 0) {
+                document.getElementById('modal-body').innerHTML =
+                    '<p style="color:#999;font-size:13px;">No history recorded for this payment.</p>';
+            } else {
+                document.getElementById('modal-body').innerHTML = history.map(h => `
+                    <div class="history-entry">
+                        <div class="history-transition">
+                            ${statusBadge(h.previous_status || 'Created')}
+                            <span class="history-arrow">→</span>
+                            ${statusBadge(h.new_status)}
+                        </div>
+                        <div class="history-time">${formatDate(h.timestamp)}</div>
+                        ${h.notes ? `<div class="history-notes">${h.notes}</div>` : ''}
+                    </div>
                 `).join('');
             }
+            document.getElementById('history-modal').classList.add('open');
+        } catch {
+            showAlert('Network error loading history.', 'error');
         }
+    }
 
-        function updateMetrics(payments) {
-            const metrics = {
-                total: payments.length,
-                requested: payments.filter(p => p.status === 'Requested').length,
-                batched: payments.filter(p => p.status === 'Batched').length,
-                sent: payments.filter(p => p.status === 'Sent').length,
-                settled: payments.filter(p => p.status === 'Settled').length,
-                returned: payments.filter(p => p.status === 'Returned').length
-            };
+    function closeModal() {
+        document.getElementById('history-modal').classList.remove('open');
+    }
+    document.getElementById('history-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-            Object.keys(metrics).forEach(key => {
-                const el = document.getElementById(`metric-${key}`);
-                if (el) el.textContent = metrics[key];
+    // ── Batches ───────────────────────────────────────────────────────
+    async function loadBatches() {
+        try {
+            const res = await fetch(`${API_BASE}/batches`, { headers: { 'Authorization': AUTH } });
+            const container = document.getElementById('batches-container');
+            if (!res.ok) { container.innerHTML = '<div class="empty-state-small">Unable to load batches</div>'; return; }
+            const data = await res.json();
+            const batches = data.batches || [];
+            if (batches.length === 0) {
+                container.innerHTML = '<div class="empty-state-small">No batches yet</div>';
+            } else {
+                container.innerHTML = `<div class="batch-list">${
+                    batches.slice(0,3).map(b => `
+                        <div class="batch-item">
+                            <div class="batch-id">${b.batch_id.substring(0,8)}…</div>
+                            <div class="batch-stats">
+                                <span>${b.transaction_count} payment${b.transaction_count !== 1 ? 's' : ''}</span>
+                                <span>$${b.total_amount.toLocaleString('en-US',{minimumFractionDigits:2})}</span>
+                            </div>
+                        </div>
+                    `).join('')
+                }</div>`;
+            }
+        } catch {}
+    }
+
+    async function loadAllBatches() {
+        const container = document.getElementById('batches-full-container');
+        try {
+            const res = await fetch(`${API_BASE}/batches`, { headers: { 'Authorization': AUTH } });
+            if (!res.ok) { container.innerHTML = '<div class="empty-state">Unable to load batches.</div>'; return; }
+            const data = await res.json();
+            const batches = data.batches || [];
+            if (batches.length === 0) {
+                container.innerHTML = `<div class="empty-state"><strong>No batches processed yet</strong>Create payments in Requested status, then click "Run Batch" to group them into an ACH batch.</div>`;
+            } else {
+                container.innerHTML = batches.map(b => `
+                    <div class="batch-full-item">
+                        <div class="batch-full-id">Batch ID: ${b.batch_id}</div>
+                        <div class="batch-full-stats">
+                            <span><strong>${b.transaction_count}</strong> payment${b.transaction_count !== 1 ? 's' : ''}</span>
+                            <span><strong>$${b.total_amount.toLocaleString('en-US',{minimumFractionDigits:2})}</strong></span>
+                            <span>${statusBadge(b.status)}</span>
+                            <span style="color:#999;">${formatDate(b.created_at)}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } catch {
+            container.innerHTML = '<div class="empty-state">Network error loading batches.</div>';
+        }
+    }
+
+    // ── NACHA files ───────────────────────────────────────────────────
+    async function loadNachaFile() {
+        const container = document.getElementById('nacha-container');
+        try {
+            const res = await fetch(`${API_BASE}/nacha-file`, { headers: { 'Authorization': AUTH } });
+            if (res.ok) {
+                const data = await res.json();
+                container.innerHTML = `
+                    <div style="font-size:11px;color:#666;margin-bottom:8px;font-family:'IBM Plex Mono',monospace;">${data.filename}</div>
+                    <div class="nacha-viewer">
+                        <div class="nacha-content">${escapeHtml(data.content.substring(0,400))}${data.content.length > 400 ? '\n…' : ''}</div>
+                    </div>`;
+            } else {
+                container.innerHTML = '<div class="empty-state-small">No file generated yet</div>';
+            }
+        } catch {
+            container.innerHTML = '<div class="empty-state-small">No file generated yet</div>';
+        }
+    }
+
+    async function loadNachaFileFull() {
+        const container = document.getElementById('nacha-full-container');
+        try {
+            const res = await fetch(`${API_BASE}/nacha-file`, { headers: { 'Authorization': AUTH } });
+            if (res.ok) {
+                const data = await res.json();
+                container.innerHTML = `
+                    <div class="file-item" style="margin-bottom:16px;">
+                        <span class="file-name">${data.filename}</span>
+                        <span class="file-meta">${(data.content.length / 1024).toFixed(2)} KB · ${formatDate(data.created_at)}</span>
+                    </div>
+                    <div class="nacha-viewer" style="max-height:500px;">
+                        <div class="nacha-content">${escapeHtml(data.content)}</div>
+                    </div>`;
+            } else {
+                container.innerHTML = `<div class="empty-state"><strong>No NACHA files generated yet</strong>Run a batch to generate an ACH-format NACHA file for bank transmission.</div>`;
+            }
+        } catch {
+            container.innerHTML = `<div class="empty-state">Network error loading files.</div>`;
+        }
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ── Clock ─────────────────────────────────────────────────────────
+    function updateClock() {
+        const el = document.getElementById('real-time-clock');
+        if (el) {
+            el.textContent = new Date().toLocaleTimeString('en-US', {
+                hour:'2-digit', minute:'2-digit', second:'2-digit', hour12: true
             });
         }
-
-        function renderProgress(status) {
-            const steps = ['Requested', 'Batched', 'Sent', 'Settled', 'Returned'];
-            const current = steps.indexOf(status);
-            
-            let html = '<div class="lifecycle-dots">';
-            for (let i = 0; i < 4; i++) {
-                html += `<div class="dot ${i <= current ? 'active' : ''}"></div>`;
-            }
-            html += '</div>';
-            return html;
-        }
-
-        function maskRouting(routing) {
-            if (!routing || routing.length < 4) return routing;
-            return '****' + routing.slice(-5);
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                timeZone: 'Etc/GMT+4'
-            });
-        }
-
-        function filterPayments(status, target) {
-            document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
-            if (target) {
-                target.classList.add('active');
-            }
-            loadPayments(status);
-        }
-
-        async function runBatch() {
-            // Show loading state with proper type
-            showAlert('Running batch...', 'loading');
-            
-            try {
-                // Wait for actual API response
-                const response = await fetch(`${API_BASE}/run-batch`, {
-                    method: 'POST',
-                    headers: { 'Authorization': AUTH_HEADER }
-                });
-
-                if (response.ok) {
-                    // Replace loading with success after completion
-                    showAlert('Batch completed', 'success');
-                    
-                    // Refresh data from database
-                    await loadPayments();
-                    await loadBatches();
-                    await loadNachaFile();
-                } else {
-                    showAlert('Batch failed', 'error');
-                }
-            } catch (error) {
-                showAlert('Network error', 'error');
-            }
-        }
-
-        async function simulateBank() {
-            // Show loading state with proper type
-            showAlert('Simulating bank...', 'loading');
-            
-            try {
-                // Wait for actual API response
-                const response = await fetch(`${API_BASE}/simulate-bank`, {
-                    method: 'POST',
-                    headers: { 'Authorization': AUTH_HEADER }
-                });
-
-                if (response.ok) {
-                    // Replace loading with success after completion
-                    showAlert('Simulation completed', 'success');
-                    
-                    // Refresh data from database
-                    await loadPayments();
-                } else {
-                    showAlert('Simulation failed', 'error');
-                }
-            } catch (error) {
-                showAlert('Network error', 'error');
-            }
-        }
-
-        async function processInbound() {
-            // Show loading state with proper type
-            showAlert('Processing inbound...', 'loading');
-            
-            try {
-                // Wait for actual API response
-                const response = await fetch(`${API_BASE}/process-inbound`, {
-                    method: 'POST',
-                    headers: { 'Authorization': AUTH_HEADER }
-                });
-
-                if (response.ok) {
-                    // Replace loading with success after completion
-                    showAlert('Processing completed', 'success');
-                    
-                    // Refresh data from database
-                    await loadPayments();
-                } else {
-                    showAlert('Processing failed', 'error');
-                }
-            } catch (error) {
-                showAlert('Network error', 'error');
-            }
-        }
-
-        function refreshData() {
-            loadPayments();
-            loadBatches();
-            loadNachaFile();
-            showAlert('Refreshed', 'success');
-        }
-
-        async function cancelPayment(paymentId) {
-            if (!confirm('Are you sure you want to cancel this payment?')) {
-                return;
-            }
-
-            showAlert('Cancelling payment...', 'loading');
-            
-            try {
-                const response = await fetch(`${API_BASE}/payments/${paymentId}/cancel`, {
-                    method: 'POST',
-                    headers: { 'Authorization': AUTH_HEADER }
-                });
-
-                if (response.ok) {
-                    showAlert('Payment cancelled', 'success');
-                    await loadPayments();
-                    if (document.getElementById('view-payments').classList.contains('active')) {
-                        await loadAllPayments();
-                    }
-                } else {
-                    const error = await response.json();
-                    showAlert(error.detail || 'Failed to cancel', 'error');
-                }
-            } catch (error) {
-                showAlert('Network error', 'error');
-            }
-        }
-
-        async function viewHistory(paymentId) {
-            try {
-                const response = await fetch(`${API_BASE}/payments/${paymentId}/history`, {
-                    headers: { 'Authorization': AUTH_HEADER }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const history = data.history || [];
-                    
-                    if (history.length === 0) {
-                        alert('No history available');
-                        return;
-                    }
-
-                    let historyText = `Payment History (${paymentId.substring(0, 8)})\n\n`;
-                    history.forEach(h => {
-                        const timestamp = formatDate(h.timestamp);
-                        historyText += `${timestamp}\n`;
-                        historyText += `  ${h.previous_status || 'None'} → ${h.new_status}\n`;
-                        if (h.notes) {
-                            historyText += `  ${h.notes}\n`;
-                        }
-                        historyText += `\n`;
-                    });
-
-                    alert(historyText);
-                } else {
-                    showAlert('Failed to load history', 'error');
-                }
-            } catch (error) {
-                showAlert('Network error', 'error');
-            }
-        }
-
-        async function loadBatches() {
-            try {
-                const response = await fetch(`${API_BASE}/batches`, {
-                    headers: { 'Authorization': AUTH_HEADER }
-                });
-
-                const container = document.getElementById('batches-container');
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const batches = data.batches || [];
-
-                    if (batches.length === 0) {
-                        container.innerHTML = '<div class="empty-state">No batches</div>';
-                    } else {
-                        container.innerHTML = `
-                            <div class="batch-list">
-                                ${batches.slice(0, 3).map(b => `
-                                    <div class="batch-item">
-                                        <div class="batch-id">${b.batch_id.substring(0, 8)}</div>
-                                        <div class="batch-stats">
-                                            <span>${b.transaction_count} txns</span>
-                                            <span>$${b.total_amount.toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `;
-                    }
-                } else {
-                    container.innerHTML = '<div class="empty-state">Error</div>';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        async function loadAllBatches() {
-            try {
-                const response = await fetch(`${API_BASE}/batches`, {
-                    headers: { 'Authorization': AUTH_HEADER }
-                });
-
-                const container = document.getElementById('batches-full-container');
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const batches = data.batches || [];
-
-                    if (batches.length === 0) {
-                        container.innerHTML = '<div class="empty-state">No batches</div>';
-                    } else {
-                        container.innerHTML = `
-                            <div class="batch-list">
-                                ${batches.map(b => `
-                                    <div class="batch-item">
-                                        <div class="batch-id">${b.batch_id}</div>
-                                        <div class="batch-stats">
-                                            <span>${b.transaction_count} transactions</span>
-                                            <span>$${b.total_amount.toFixed(2)}</span>
-                                            <span>${formatDate(b.created_at)}</span>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `;
-                    }
-                } else {
-                    container.innerHTML = '<div class="empty-state">Error</div>';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        async function loadNachaFile() {
-            try {
-                const response = await fetch(`${API_BASE}/nacha-file`, {
-                    headers: { 'Authorization': AUTH_HEADER }
-                });
-
-                const container = document.getElementById('nacha-container');
-
-                if (response.ok) {
-                    const data = await response.json();
-                    container.innerHTML = `
-                        <div class="nacha-viewer">
-                            <div class="nacha-content">${data.content.substring(0, 200)}...</div>
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = '<div class="empty-state">No file</div>';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        async function loadNachaFileFull() {
-            try {
-                const response = await fetch(`${API_BASE}/nacha-file`, {
-                    headers: { 'Authorization': AUTH_HEADER }
-                });
-
-                const container = document.getElementById('nacha-full-container');
-
-                if (response.ok) {
-                    const data = await response.json();
-                    container.innerHTML = `
-                        <div class="file-list">
-                            <div class="file-item">
-                                <span class="file-name">${data.filename}</span>
-                                <span class="file-size">${(data.content.length / 1024).toFixed(2)} KB</span>
-                            </div>
-                        </div>
-                        <div style="margin-top: 16px;">
-                            <div class="nacha-viewer">
-                                <div class="nacha-content">${data.content}</div>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = '<div class="empty-state">No files</div>';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        function updateClock() {
-            const clockElement = document.getElementById('real-time-clock');
-            if (clockElement) {
-                const now = new Date();
-                clockElement.textContent = now.toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true,
-                    timeZone: 'Etc/GMT+4'
-                });
-            }
-        }
-
-        setInterval(updateClock, 1000);
-        updateClock();
-    </script>
+    }
+</script>
 </body>
 </html>
