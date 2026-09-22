@@ -1,6 +1,6 @@
 import os
 from collections.abc import Iterable
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from app.models import Payment
@@ -35,6 +35,15 @@ _FED_ROUTING = "987654321"
 _COMPANY_NAME_16 = "PAYMENT HUB     "
 _COMPANY_NAME_23 = "PAYMENT HUB            "
 _DEST_NAME_23   = "SIMULATED BANK         "
+
+
+def _next_banking_day(dt: datetime) -> datetime:
+    """Return the next banking day (Mon-Fri, skipping Sat/Sun) from dt."""
+    next_day = dt + timedelta(days=1)
+    # 5=Saturday, 6=Sunday
+    while next_day.weekday() >= 5:
+        next_day += timedelta(days=1)
+    return next_day
 
 
 def _batch_number_from_id(batch_id: str) -> str:
@@ -84,9 +93,9 @@ def generate_nacha_file(batch_id: str, payments: Iterable[Payment]) -> Path:
         + _fixed(batch_id.replace("-", "")[:20], 20) # company discretionary data
         + _fixed(_ODFI_ROUTING, 10)                  # company identification (ODFI routing)
         + "PPD"                                      # SEC code
-        + _fixed("PAYMENTS", 10)                     # company entry description
+        + _fixed("INS CLAIMS", 10)                   # company entry description (visible on bank statement)
         + now.strftime("%y%m%d")                     # descriptive date (YYMMDD)
-        + now.strftime("%y%m%d")                     # effective entry date (YYMMDD)
+        + _next_banking_day(now).strftime("%y%m%d")  # effective entry date: T+1 banking day
         + "   "                                      # settlement date (filled by Fed)
         + "1"                                        # originator status code
         + _ODFI_ROUTING_PREFIX                       # ODFI routing prefix (8 digits)

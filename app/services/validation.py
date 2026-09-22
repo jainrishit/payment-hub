@@ -12,11 +12,11 @@ def validate_routing_number(routing_number: str) -> tuple[bool, Optional[str]]:
     """
     if not routing_number or len(routing_number) != 9:
         return False, "Routing number must be exactly 9 digits"
-    
+
     if not routing_number.isdigit():
         return False, "Routing number must contain only digits"
-    
-    # ABA checksum algorithm
+
+    # ABA checksum: 3*(d0+d3+d6) + 7*(d1+d4+d7) + (d2+d5+d8) must be divisible by 10
     try:
         digits = [int(d) for d in routing_number]
         checksum = (
@@ -24,14 +24,14 @@ def validate_routing_number(routing_number: str) -> tuple[bool, Optional[str]]:
             7 * (digits[1] + digits[4] + digits[7]) +
             (digits[2] + digits[5] + digits[8])
         )
-        
+
         if checksum % 10 != 0:
-            return False, "Invalid routing number checksum"
-        
+            return False, "Please enter a valid 9-digit ABA routing number"
+
         return True, None
     except Exception as e:
         logger.error(f"Routing number validation error: {e}")
-        return False, "Routing number validation failed"
+        return False, "Please enter a valid 9-digit ABA routing number"
 
 
 def validate_account_number(account_number: str) -> tuple[bool, Optional[str]]:
@@ -42,8 +42,8 @@ def validate_account_number(account_number: str) -> tuple[bool, Optional[str]]:
     if not account_number:
         return False, "Account number is required"
     
-    if not re.match(r'^[0-9]{1,17}$', account_number):
-        return False, "Account number must be 1-17 digits"
+    if not re.match(r'^[0-9]{8,17}$', account_number):
+        return False, "Account number must be between 8 and 17 digits"
     
     return True, None
 

@@ -13,21 +13,20 @@ from app.services.nacha_generator import OUTPUT_DIR
 
 logger = logging.getLogger(__name__)
 
+# Return codes applicable to PPD credit (disbursement) entries.
+# Debit-only codes (R05, R09, R10, R29) are excluded — they cannot appear
+# on a credit transaction and would immediately flag the simulation as unrealistic
+# to any payments architect or ACH operations specialist.
 RETURN_CODES = {
-    "R01": "Insufficient Funds",
     "R02": "Account Closed",
-    "R03": "No Account/Unable to Locate Account",
-    "R04": "Invalid Account Number",
-    "R05": "Unauthorized Debit to Consumer Account",
+    "R03": "No Account / Unable to Locate Account",
+    "R04": "Invalid Account Number Structure",
     "R07": "Authorization Revoked by Customer",
     "R08": "Payment Stopped",
-    "R09": "Uncollected Funds",
-    "R10": "Customer Advises Not Authorized",
     "R14": "Representative Payee Deceased or Unable to Continue",
     "R15": "Beneficiary or Account Holder Deceased",
-    "R16": "Account Frozen",
+    "R16": "Account Frozen / Restricted",
     "R20": "Non-Transaction Account",
-    "R29": "Corporate Customer Advises Not Authorized",
 }
 
 
@@ -146,18 +145,21 @@ def simulate_bank_processing(db: Session) -> BankSimulationResult:
                 }
             )
         else:
+            # "Failed" represents an ODFI/processor-side transmission failure,
+            # distinct from a bank-issued return (R-code). Reasons should reflect
+            # originating bank or processor errors, not HTTP/network language.
             failure_reason = random.choice([
-                "Network timeout",
-                "Processing error",
-                "System unavailable",
-                "Invalid format",
+                "File rejected by ODFI — invalid batch format",
+                "Transmission window missed — file resubmission required",
+                "Duplicate file detected by ACH operator",
+                "ODFI daily credit limit exceeded",
             ])
             payment.failure_reason = failure_reason
             success = PaymentLifecycleEngine.transition_payment_status(
                 db,
                 payment,
                 "Failed",
-                f"Payment processing failed: {failure_reason}",
+                f"ODFI transmission failure: {failure_reason}",
             )
             if success:
                 emit_event(
