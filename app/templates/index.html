@@ -326,7 +326,22 @@
         .quick-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 2px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
         }
 
         .form-row {
@@ -364,6 +379,7 @@
             display: flex;
             gap: 4px;
             flex-wrap: wrap;
+            margin-top: 2px;
         }
 
         .reason-option {
@@ -749,21 +765,31 @@
             <div class="panel-section">
                 <div class="panel-title">New Payment</div>
                 <form class="quick-form" id="payment-form">
-                    <input class="field-input" type="text" id="amount" placeholder="2500.00" required>
-                    <small id="error-amount" style="color:#ef4444;font-size:11px;display:none;"></small>
-                    <input class="field-input" type="text" id="routing_number" pattern="[0-9]{9}" maxlength="9" placeholder="021000021" required>
-                    <small id="error-routing" style="color:#ef4444;font-size:11px;display:none;"></small>
-                    <input class="field-input" type="text" id="account_number" pattern="[0-9]+" placeholder="123456789" required>
-                    <small id="error-account" style="color:#ef4444;font-size:11px;display:none;"></small>
-                    
-                    <div class="reason-selector">
-                        <div class="reason-option" data-reason="Auto Claim Settlement">Auto Claim</div>
-                        <div class="reason-option" data-reason="Property Damage Claim">Property Damage</div>
-                        <div class="reason-option" data-reason="Premium Refund">Premium Refund</div>
-                        <div class="reason-option" data-reason="Disability Benefit Payment">Disability Benefit</div>
+                    <div class="field-group">
+                        <label class="field-label" for="amount">Amount</label>
+                        <input class="field-input" type="text" id="amount" placeholder="2500.00" required>
+                        <small id="error-amount" style="color:#ef4444;font-size:11px;display:none;"></small>
                     </div>
-                    <small id="error-reason" style="color:#ef4444;font-size:11px;display:none;"></small>
-                    
+                    <div class="field-group">
+                        <label class="field-label" for="routing_number">Routing Number</label>
+                        <input class="field-input" type="text" id="routing_number" pattern="[0-9]{9}" maxlength="9" placeholder="021000021" required>
+                        <small id="error-routing" style="color:#ef4444;font-size:11px;display:none;"></small>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="account_number">Account Number</label>
+                        <input class="field-input" type="text" id="account_number" pattern="[0-9]+" placeholder="123456789" required>
+                        <small id="error-account" style="color:#ef4444;font-size:11px;display:none;"></small>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Payment Reason</label>
+                        <div class="reason-selector">
+                            <div class="reason-option" data-reason="Auto Claim Settlement">Auto Claim</div>
+                            <div class="reason-option" data-reason="Property Damage Claim">Property Damage</div>
+                            <div class="reason-option" data-reason="Premium Refund">Premium Refund</div>
+                            <div class="reason-option" data-reason="Disability Benefit Payment">Disability Benefit</div>
+                        </div>
+                        <small id="error-reason" style="color:#ef4444;font-size:11px;display:none;"></small>
+                    </div>
                     <button type="submit" class="submit-btn" id="submit-btn" disabled>Submit Payment</button>
                 </form>
             </div>
@@ -1129,7 +1155,7 @@
                         const count = result.total_transactions || 0;
                         const amt = result.total_amount ? `$${parseFloat(result.total_amount).toFixed(2)}` : '';
                         const label = count === 1 ? 'Payment' : 'Payments';
-                        showAlert(`${count} ${label} Added To Batch${amt ? ' — ' + amt + ' total' : ''}.`, 'success');
+                        showAlert(`${count} ${label} Added To Batch. Total: ${amt || ''}`, 'success');
                     }
                     await loadPayments();
                     await loadBatches();
@@ -1161,7 +1187,7 @@
                         if (result.settled > 0) parts.push(`${result.settled} Settled`);
                         if (result.returned > 0) parts.push(`${result.returned} Returned`);
                         if (result.failed > 0) parts.push(`${result.failed} Failed`);
-                        showAlert(`Bank Simulation Complete — ${parts.join(', ')}.`, 'success');
+                        showAlert(`Bank Simulation Complete. ${parts.join(', ')}.`, 'success');
                     }
                     await loadPayments();
                 } else {
@@ -1236,7 +1262,7 @@
                     }
 
                     const ref = formatPaymentRef(paymentId, createdAt);
-                    let historyText = `Payment History — ${ref}\n${'─'.repeat(42)}\n\n`;
+                    let historyText = `Payment History: ${ref}\n${'─'.repeat(42)}\n\n`;
                     history.forEach((h, i) => {
                         const timestamp = formatDate(h.timestamp);
                         const from = h.previous_status ? friendlyStatus(h.previous_status) : 'New';
